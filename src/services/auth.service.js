@@ -40,9 +40,6 @@ const LoginWithOTP = async (body) => {
 
 const VerifyRef = async (req) => {
   const { refId } = req.body;
-
-  
-
 };
 
 module.exports = {
