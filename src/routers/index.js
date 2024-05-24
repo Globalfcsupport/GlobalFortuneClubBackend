@@ -6,7 +6,7 @@ const AuthRoute = require("./auth.route");
 const AdminRoute = require("./admin.router");
 const Routes = [
   {
-    path: "/referal",
+    path: "/referral",
     route: ReferalRoute,
   },
   {
