@@ -8,7 +8,7 @@ const { oxaPay } = require("../config/config");
 const QS = require("qs");
 const Axios = require("axios");
 const { v4 } = require("uuid");
-const { stringify } = require("flatted");
+const { Payment } = require("../models/payment.history");
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -105,7 +105,7 @@ const payments = async (req) => {
         amount,
         currency: "USD",
         lifeTime: oxapayLifetime,
-        callbackUrl: `http://localhost:3333/v1/user/payment/notification?apiKey=${apiKey}`,
+        callbackUrl: `${backendUrl}/v1/user/payment/notification?apiKey=${apiKey}`,
         returnUrl: `${frontendUrl}/dashboard`,
         orderId: orderId,
         email,
@@ -130,7 +130,29 @@ const payments = async (req) => {
 
 const getPaymentNotification = async (req) => {
   console.log(req.body);
-  return req.body;
+  // {
+  //   status: 'Paid',
+  //   trackId: '35901442',
+  //   amount: '100',
+  //   currency: 'USD',
+  //   feePaidByPayer: 0,
+  //   underPaidCover: 2,
+  //   email: 'muthamizhyadav@gmail.com',
+  //   orderId: '25170d3b-abec-473c-8fd2-74f25f80f1e0',
+  //   description: '',
+  //   date: '1716669460',
+  //   payDate: 0,
+  //   type: 'payment',
+  //   txID: 'OXP-35901442',
+  //   price: '100',
+  //   payAmount: '0.00144759',
+  //   payCurrency: 'BTC',
+  //   network: 'Bitcoin',
+  //   rate: '0.00001447'
+  // }
+
+  let creationPaymentHistory = await Payment.create(req.body);
+  return creationPaymentHistory;
 };
 
 module.exports = {
