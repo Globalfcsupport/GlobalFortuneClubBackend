@@ -40,10 +40,16 @@ const LoginWithOTP = async (body) => {
 
 const VerifyRef = async (req) => {
   const { refId } = req.body;
+  let findByVerificationCode = await User.findOne({ refId });
+  if (!findByVerificationCode) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid Refferal");
+  }
+  return findByVerificationCode;
 };
 
 module.exports = {
   Registration,
   VerifyOTP,
   LoginWithOTP,
+  VerifyRef,
 };

@@ -27,9 +27,15 @@ const AdminLogin = catchAsync(async (req, res) => {
   res.send({ data, token });
 });
 
+const VerifyRef = catchAsync(async (req, res) => {
+  const data = await AuthService.VerifyRef(req);
+  res.send(data);
+});
+
 module.exports = {
   Registration,
   VerifyOTP,
   LoginWithOTP,
   AdminLogin,
+  VerifyRef,
 };
