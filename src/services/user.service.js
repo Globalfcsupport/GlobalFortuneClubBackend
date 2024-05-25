@@ -4,6 +4,9 @@ const User = require("../models/users.model");
 const { OTPGenerator } = require("../utils/OTP");
 const { generateRefId } = require("../utils/referalIdGenerator");
 const Bcrypt = require("bcryptjs");
+const { oxaPay } = require("../config/config");
+const QS = require("qs");
+const Axios = require("axios");
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -40,7 +43,48 @@ const LoginWithEmailPassword = async (req) => {
   return findByemail;
 };
 
+const payments = async (req) => {
+  let userId = req.userId;
+  let finduserById = await User.findById(userId);
+  if (!finduserById) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User Not Found");
+  }
+  const email = finduserById.email;
+  const { amount } = req.body;
+  const {
+    apiKey,
+    backendUrl,
+    frontendUrl,
+    oxapayLifetime,
+    oxapayBaseUrl,
+    oxapayMerchantKey,
+    maxRequestHour,
+    maxRequestLimit,
+  } = oxaPay;
+
+  const PaymentOrder = await Axios.post(
+    `${oxapayBaseUrl}/merchants/request`,
+    QS.stringify({
+      merchant: oxapayMerchantKey,
+      amount,
+      currency: "USD",
+      lifeTime: oxapayLifetime,
+      callbackUrl: `${backendUrl}/api/v01/payment/notification?apiKey=${apiKey}`,
+      // returnUrl: `${frontendUrl}/dashboard`,
+      orderId: uuidV4(),
+      email,
+    }),
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  );
+  return PaymentOrder;
+};
+
 module.exports = {
   createUser,
   LoginWithEmailPassword,
+  payments,
 };

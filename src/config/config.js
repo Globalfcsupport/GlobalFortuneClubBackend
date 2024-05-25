@@ -65,4 +65,15 @@ module.exports = {
     },
     from: envVars.EMAIL_FROM,
   },
+
+  oxaPay: {
+    maxRequestLimit: parseInt(process.env.MAX_REQUEST || "100"),
+    maxRequestHour: parseInt(process.env.MAX_REQUEST_HOUR || "1"),
+    oxapayMerchantKey: process.env.OXAPAY_MERCHANT_KEY || "",
+    oxapayBaseUrl: process.env.OXAPAY_BASE_URL || "",
+    oxapayLifetime: parseInt(process.env.OXAPAY_LIFE_TIME || "30"),
+    frontendUrl: process.env.FRONTEND_URL || "",
+    backendUrl: process.env.BACKEND_URL || "",
+    apiKey: process.env.API_KEY || "a596c4977b615ae533d989eae6bc5358",
+  },
 };

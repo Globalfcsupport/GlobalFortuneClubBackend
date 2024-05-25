@@ -6,6 +6,12 @@ const createUser = catchAsync(async (req, res) => {
   res.status(201).send(data);
 });
 
+const payments = catchAsync(async (req, res) => {
+  const data = await UserService.payments(req);
+  res.send(data);
+});
+
 module.exports = {
   createUser,
+  payments,
 };

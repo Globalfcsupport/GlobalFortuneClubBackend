@@ -9,6 +9,7 @@ const Registration = async (req) => {
   if (findByEmail) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email Already Exist's");
   }
+  await VerifyOTP(req.body);
   const data = await User.create({ ...req.body, ...{ role: "user" } });
   return { ...data, ...{ otp: OTP.OTP } };
 };
@@ -23,7 +24,7 @@ const GenerateOTP = async (req) => {
       "OTP SEND FAILED........."
     );
   }
-  return OTP
+  return OTP;
 };
 
 const VerifyOTP = async (body) => {
