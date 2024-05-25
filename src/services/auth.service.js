@@ -10,8 +10,20 @@ const Registration = async (req) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email Already Exist's");
   }
   const data = await User.create({ ...req.body, ...{ role: "user" } });
-  let OTP = await OTPGenerator(data);
   return { ...data, ...{ otp: OTP.OTP } };
+};
+
+const GenerateOTP = async (req) => {
+  const { email } = req.body;
+  console.log(email);
+  let OTP = await OTPGenerator(email);
+  if (!OTP) {
+    throw new ApiError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "OTP SEND FAILED........."
+    );
+  }
+  return OTP
 };
 
 const VerifyOTP = async (body) => {
@@ -52,4 +64,5 @@ module.exports = {
   VerifyOTP,
   LoginWithOTP,
   VerifyRef,
+  GenerateOTP,
 };

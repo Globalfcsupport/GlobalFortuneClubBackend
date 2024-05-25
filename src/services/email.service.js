@@ -42,14 +42,14 @@ const sendResetPasswordEmail = async (to, token) => {
 };
 
 const sendOtpVerification = async (datas) => {
-  const { otp, _doc } = datas;
+  const { email, OTP } = datas;
   const subject = "Verify Your Account with GFC";
   let htmlfile = await ejs.renderFile(__dirname + "/signin.ejs", {
-    userName: _doc.userName,
-    OTP: otp,
-    email: _doc.email,
+    userName: email,
+    OTP: OTP,
+    email: email,
   });
-  await sendEmail(_doc.email, subject, htmlfile);
+  await sendEmail(email, subject, htmlfile);
 };
 
 module.exports = {
