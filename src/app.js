@@ -20,7 +20,7 @@ app.options("*", cors());
 
 
 app.get("/", ((req,res)=>{
-  res.sendStatus(200).send({message:"GFC API WORKING........"})
+  res.status(200).send({message:"GFC API WORKING........"})
 }))
 
 app.use("/v1", routes);
