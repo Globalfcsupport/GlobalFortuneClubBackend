@@ -7,6 +7,8 @@ const Bcrypt = require("bcryptjs");
 const { oxaPay } = require("../config/config");
 const QS = require("qs");
 const Axios = require("axios");
+const { v4 } = require("uuid");
+const { stringify } = require("flatted");
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -62,29 +64,78 @@ const payments = async (req) => {
     maxRequestLimit,
   } = oxaPay;
 
-  const PaymentOrder = await Axios.post(
-    `${oxapayBaseUrl}/merchants/request`,
-    QS.stringify({
-      merchant: oxapayMerchantKey,
-      amount,
-      currency: "USD",
-      lifeTime: oxapayLifetime,
-      callbackUrl: `${backendUrl}/api/v01/payment/notification?apiKey=${apiKey}`,
-      // returnUrl: `${frontendUrl}/dashboard`,
-      orderId: uuidV4(),
-      email,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-  );
-  return PaymentOrder;
+  // const PaymentOrder = await Axios.post(
+  //   `${oxapayBaseUrl}/merchants/request`,
+  //   QS.stringify({
+  //     merchant: oxapayMerchantKey,
+  //     amount,
+  //     currency: "USD",
+  //     lifeTime: oxapayLifetime,
+  //     callbackUrl: `${backendUrl}/api/v01/payment/notification?apiKey=${apiKey}`,
+  //     returnUrl: `${frontendUrl}/dashboard`,
+  //     orderId: v4,
+  //     email,
+  //   }),
+  //   {
+  //     headers: {
+  //       "Content-Type": "application/x-www-form-urlencoded",
+  //     },
+  //   }
+  // );
+  // console.log(PaymentOrder.data);
+  // return PaymentOrder;
+  function getCircularReplacer() {
+    const seen = new WeakSet();
+    return (key, value) => {
+      if (typeof value === "object" && value !== null) {
+        if (seen.has(value)) {
+          return;
+        }
+        seen.add(value);
+      }
+      return value;
+    };
+  }
+  try {
+    let orderId = v4();
+    const PaymentOrder = await Axios.post(
+      `${oxapayBaseUrl}/merchants/request`,
+      QS.stringify({
+        merchant: oxapayMerchantKey,
+        amount,
+        currency: "USD",
+        lifeTime: oxapayLifetime,
+        callbackUrl: `http://localhost:3333/v1/user/payment/notification?apiKey=${apiKey}`,
+        returnUrl: `${frontendUrl}/dashboard`,
+        orderId: orderId,
+        email,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+    return PaymentOrder.data;
+
+    // console.log("Response Data:", JSON.stringify(PaymentOrder.data, null, 2));
+  } catch (error) {
+    console.error("Error occurred:", error.message);
+    console.error(
+      "Error response:",
+      JSON.stringify(error.response, getCircularReplacer(), 2)
+    );
+  }
+};
+
+const getPaymentNotification = async (req) => {
+  console.log(req.body);
+  return req.body;
 };
 
 module.exports = {
   createUser,
   LoginWithEmailPassword,
   payments,
+  getPaymentNotification,
 };

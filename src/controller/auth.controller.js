@@ -15,7 +15,7 @@ const VerifyOTP = catchAsync(async (req, res) => {
 });
 
 const LoginWithOTP = catchAsync(async (req, res) => {
-  const data = await AuthService.LoginWithOTP(req.body);
+  const data = await AuthService.VerifyOTP(req.body);
   res.send({ data, token });
 });
 
@@ -36,6 +36,12 @@ const GenerateOTP = catchAsync(async (req, res) => {
   res.send({ message: "OTP SEND SUCCESSFULLY...." });
 });
 
+const LoginWithOTPVerify = catchAsync(async (req, res) => {
+  const data = await AuthService.LoginWithOTPVerify(req);
+  let token = await generateAdminAuthToken(data);
+  res.send({ data, token });
+});
+
 module.exports = {
   Registration,
   VerifyOTP,
@@ -43,4 +49,5 @@ module.exports = {
   AdminLogin,
   VerifyRef,
   GenerateOTP,
+  LoginWithOTPVerify,
 };

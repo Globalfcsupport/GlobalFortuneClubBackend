@@ -60,10 +60,29 @@ const VerifyRef = async (req) => {
   return findByVerificationCode;
 };
 
+const LoginWithOTPVerify = async (req) => {
+  const { email, otp } = req.body;
+  let findOtpByemail_Otp = await OTP.findOne({
+    email,
+    OTP: otp,
+    verified: false,
+  });
+
+  let findByEmail = await User.findOne({ email: findOtpByemail_Otp.email });
+
+  if (!findOtpByemail_Otp) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid OTP");
+  }
+  findOtpByemail_Otp.verified = true;
+  findOtpByemail_Otp.save();
+  return findByEmail;
+};
+
 module.exports = {
   Registration,
   VerifyOTP,
   LoginWithOTP,
   VerifyRef,
   GenerateOTP,
+  LoginWithOTPVerify,
 };
