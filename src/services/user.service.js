@@ -8,7 +8,7 @@ const { oxaPay } = require("../config/config");
 const QS = require("qs");
 const Axios = require("axios");
 const { v4 } = require("uuid");
-const { Payment } = require("../models/payment.history");
+const { Payment, Wallet } = require("../models/payment.history");
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -160,6 +160,20 @@ const getPaymentNotification = async (req) => {
   res = await Payment.findByIdAndUpdate({ _id: findByOrderId._id }, req.body, {
     new: true,
   });
+
+  let findwallet = await Wallet.findOne({ email: email });
+  if (!findwallet) {
+    await Wallet.create({ wallet: req.body.amount, email: req.body.email });
+  } else {
+    let existingWallet = findwallet.wallet ? findwallet.wallet : 0;
+    let totalwallet = existingWallet + req.body.amount;
+    findwallet = await Wallet.findByIdAndUpdate(
+      { _id: findwallet._id },
+      { wallet: totalwallet },
+      { new: true }
+    );
+  }
+
   return findByOrderId;
 };
 

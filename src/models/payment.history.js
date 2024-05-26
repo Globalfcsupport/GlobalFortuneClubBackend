@@ -75,6 +75,40 @@ const PaymentHistorySchema = new mongoose.Schema(
 
 const Payment = mongoose.model("payments", PaymentHistorySchema);
 
+const WalletSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: String,
+      default: v4,
+    },
+    wallet: {
+      type: Number,
+      default: 0,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    userId: {
+      type: String,
+    },
+    reserveWallet: {
+      type: Number,
+    },
+    crowdStack: {
+      type: Number,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const Wallet = mongoose.model("wallet", WalletSchema);
+
 module.exports = {
   Payment,
+  Wallet,
 };
