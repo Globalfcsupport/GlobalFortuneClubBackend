@@ -151,30 +151,35 @@ const getPaymentNotification = async (req) => {
   //   rate: '0.00001447'
   // }
 
+  const { status } = req.body;
+
   let res;
 
-  let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
-  if (!findByOrderId) {
+  // let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
+  // if (!findByOrderId) {
+  // }
+  // res = await Payment.findByIdAndUpdate({ _id: findByOrderId._id }, req.body, {
+  //   new: true,
+  // });
+
+  if (status == "Paid") {
     res = await Payment.create(req.body);
-  }
-  res = await Payment.findByIdAndUpdate({ _id: findByOrderId._id }, req.body, {
-    new: true,
-  });
-
-  let findwallet = await Wallet.findOne({ email: email });
-  if (!findwallet) {
-    await Wallet.create({ wallet: req.body.amount, email: req.body.email });
+    let findwallet = await Wallet.findOne({ email: email });
+    if (!findwallet) {
+      await Wallet.create({ wallet: req.body.amount, email: req.body.email });
+    } else {
+      let existingWallet = findwallet.wallet ? findwallet.wallet : 0;
+      let totalwallet = existingWallet + req.body.amount;
+      findwallet = await Wallet.findByIdAndUpdate(
+        { _id: findwallet._id },
+        { wallet: totalwallet },
+        { new: true }
+      );
+    }
+    return findByOrderId;
   } else {
-    let existingWallet = findwallet.wallet ? findwallet.wallet : 0;
-    let totalwallet = existingWallet + req.body.amount;
-    findwallet = await Wallet.findByIdAndUpdate(
-      { _id: findwallet._id },
-      { wallet: totalwallet },
-      { new: true }
-    );
+    throw new ApiError(httpStatus.BAD_REQUEST, "Payment Failed......");
   }
-
-  return findByOrderId;
 };
 
 module.exports = {
