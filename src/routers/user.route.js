@@ -8,4 +8,7 @@ router.route("/payment").post(VerifyAuthToken, UserController.payments);
 router
   .route("/payment/notification")
   .post(apiKeyAuthorization, UserController.getPaymentNotification);
+router
+  .route("/getpayment/history/byuser")
+  .get(VerifyAuthToken, UserController.getPaymentHistoryByUser);
 module.exports = router;

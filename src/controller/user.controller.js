@@ -16,8 +16,14 @@ const getPaymentNotification = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getPaymentHistoryByUser = catchAsync(async (req, res) => {
+  const data = await UserService.getPaymentHistoryByUser(req);
+  res.send(data);
+});
+
 module.exports = {
   createUser,
   payments,
   getPaymentNotification,
+  getPaymentHistoryByUser,
 };

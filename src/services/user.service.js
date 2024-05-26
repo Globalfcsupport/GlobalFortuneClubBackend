@@ -182,9 +182,21 @@ const getPaymentNotification = async (req) => {
   }
 };
 
+const getPaymentHistoryByUser = async (req) => {
+  let userId = req.userId;
+  let finduserById = await User.findById(userId);
+  const paymentsByUser = await Payment.aggregate([
+    {
+      $match: { email: finduserById.email },
+    },
+  ]);
+  return paymentsByUser;
+};
+
 module.exports = {
   createUser,
   LoginWithEmailPassword,
   payments,
   getPaymentNotification,
+  getPaymentHistoryByUser,
 };
