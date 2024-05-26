@@ -151,8 +151,16 @@ const getPaymentNotification = async (req) => {
   //   rate: '0.00001447'
   // }
 
-  let creationPaymentHistory = await Payment.create(req.body);
-  return creationPaymentHistory;
+  let res;
+
+  let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
+  if (!findByOrderId) {
+    res = await Payment.create(req.body);
+  }
+  res = await Payment.findByIdAndUpdate({ _id: findByOrderId._id }, req.body, {
+    new: true,
+  });
+  return findByOrderId;
 };
 
 module.exports = {

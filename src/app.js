@@ -18,10 +18,9 @@ app.use(bodyParser.json());
 app.use(cors());
 app.options("*", cors());
 
-
-app.get("/", ((req,res)=>{
-  res.status(200).send({message:"GFC API WORKING........"})
-}))
+app.get("/", (req, res) => {
+  res.status(200).send({ message: "GFC API WORKING........" });
+});
 
 app.use("/v1", routes);
 app.use("/v1/auth", authLimiter);
