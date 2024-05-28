@@ -69,6 +69,7 @@ const PaymentHistorySchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    userId: String,
   },
   { timestamps: true }
 );

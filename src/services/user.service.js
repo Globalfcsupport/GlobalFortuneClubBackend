@@ -109,6 +109,7 @@ const payments = async (req) => {
         returnUrl: `${frontendUrl}/dashboard`,
         orderId: orderId,
         email,
+        userId,
       }),
       {
         headers: {
@@ -192,6 +193,8 @@ const getPaymentHistoryByUser = async (req) => {
   ]);
   return paymentsByUser;
 };
+
+const activateClub = async (req) => {};
 
 module.exports = {
   createUser,
