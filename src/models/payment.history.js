@@ -11,19 +11,19 @@ const PaymentHistorySchema = new mongoose.Schema(
       type: String,
     },
     trackId: {
-      type: String,
+      type: Number,
     },
     amount: {
-      type: String,
+      type: Number,
     },
     currency: {
       type: String,
     },
     feePaidByPayer: {
-      type: String,
+      type: Number,
     },
     underPaidCover: {
-      type: String,
+      type: Number,
     },
     email: {
       type: String,
@@ -35,10 +35,10 @@ const PaymentHistorySchema = new mongoose.Schema(
       type: String,
     },
     date: {
-      type: String,
+      type: Number,
     },
     payDate: {
-      type: String,
+      type: Number,
     },
     type: {
       type: String,
@@ -47,7 +47,7 @@ const PaymentHistorySchema = new mongoose.Schema(
       type: String,
     },
     price: {
-      type: String,
+      type: Number,
     },
     payAmount: {
       type: String,

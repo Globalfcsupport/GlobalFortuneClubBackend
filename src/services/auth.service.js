@@ -42,9 +42,10 @@ const GenerateOTP = async (req) => {
 
 const VerifyOTP = async (body) => {
   const { email, otp } = body;
+  console.log(body);
   let findOtpByemail_Otp = await OTP.findOne({
-    email,
-    OTP: otp,
+    email: email,
+    OTP: parseInt(otp),
     verified: false,
   }).sort({ createdAt: -1 });
   if (!findOtpByemail_Otp) {
