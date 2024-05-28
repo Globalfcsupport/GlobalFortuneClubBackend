@@ -20,7 +20,10 @@ const Registration = async (req) => {
   }
   let refId = await generateRefId(letter.toUpperCase(), findUserCount);
 
-  const data = await User.create({ ...req.body, ...{refId: refId.ID + (findUserCount + 1), role: "user" } });
+  const data = await User.create({
+    ...req.body,
+    ...{ refId: refId.ID + (findUserCount + 1), role: "user" },
+  });
   return { ...data, ...{ otp: OTP.OTP } };
 };
 
@@ -43,7 +46,7 @@ const VerifyOTP = async (body) => {
     email,
     OTP: otp,
     verified: false,
-  });
+  }).sort({ createdAt: -1 });
   if (!findOtpByemail_Otp) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Invalid OTP");
   }
