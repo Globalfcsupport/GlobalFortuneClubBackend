@@ -3,6 +3,7 @@ const httpStatus = require("http-status");
 const User = require("../models/users.model");
 const { OTPGenerator } = require("../utils/OTP");
 const OTP = require("../models/Otp.model");
+const { generateRefId } = require("../utils/referalIdGenerator");
 
 const Registration = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -10,7 +11,16 @@ const Registration = async (req) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email Already Exist's");
   }
   await VerifyOTP(req.body);
-  const data = await User.create({ ...req.body, ...{ role: "user" } });
+  let findUserCount = await User.find().count();
+  let letter = "z";
+  if (findUserCount == 0) {
+    letter = letter;
+  } else if (findUserCount == 9999) {
+    letter = "A";
+  }
+  let refId = await generateRefId(letter.toUpperCase(), findUserCount);
+
+  const data = await User.create({ ...req.body, ...{refId: refId.ID + (findUserCount + 1), role: "user" } });
   return { ...data, ...{ otp: OTP.OTP } };
 };
 
