@@ -155,14 +155,16 @@ const getPaymentNotification = async (req) => {
 
   let res;
 
-  // let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
-  // if (!findByOrderId) {
-  // }
-  // res = await Payment.findByIdAndUpdate({ _id: findByOrderId._id }, req.body, {
-  //   new: true,
-  // });
-
-  if (status == "Paid") {
+  let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
+  if (findByOrderId) {
+    res = await Payment.findByIdAndUpdate(
+      { _id: findByOrderId._id },
+      req.body,
+      {
+        new: true,
+      }
+    );
+  } else {
     res = await Payment.create(req.body);
     let findwallet = await Wallet.findOne({ email: email });
     if (!findwallet) {
@@ -177,8 +179,6 @@ const getPaymentNotification = async (req) => {
       );
     }
     return findByOrderId;
-  } else {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Payment Failed......");
   }
 };
 
@@ -187,7 +187,7 @@ const getPaymentHistoryByUser = async (req) => {
   let finduserById = await User.findById(userId);
   const paymentsByUser = await Payment.aggregate([
     {
-      $match: { email: finduserById.email, status: "Paid" },
+      $match: { email: finduserById.email },
     },
   ]);
   return paymentsByUser;
