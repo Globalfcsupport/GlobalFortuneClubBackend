@@ -187,7 +187,7 @@ const getPaymentHistoryByUser = async (req) => {
   let finduserById = await User.findById(userId);
   const paymentsByUser = await Payment.aggregate([
     {
-      $match: { email: finduserById.email },
+      $match: { email: finduserById.email, status: "Paid" },
     },
   ]);
   return paymentsByUser;
