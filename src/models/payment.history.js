@@ -76,40 +76,103 @@ const PaymentHistorySchema = new mongoose.Schema(
 
 const Payment = mongoose.model("payments", PaymentHistorySchema);
 
-const WalletSchema = new mongoose.Schema(
+const slotSchema = new mongoose.Schema(
   {
     _id: {
       type: String,
       default: v4,
     },
-    wallet: {
-      type: Number,
-      default: 0,
-    },
-    email: {
-      type: String,
-      required: true,
-    },
     userId: {
       type: String,
     },
-    reserveWallet: {
+    no_ofSlot: {
       type: Number,
     },
-    crowdStack: {
-      type: Number,
+    status: {
+      type: String,
     },
     active: {
       type: Boolean,
       default: true,
     },
+    archive: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
 
-const Wallet = mongoose.model("wallet", WalletSchema);
+const yieldSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: String,
+      default: v4,
+    },
+    userId: {
+      type: String,
+    },
+    slotId: {
+      type: String,
+    },
+    no_ofSlot: {
+      type: Number,
+    },
+    totalYield: {
+      type: Number,
+      default: 200,
+    },
+    currentYield: {
+      type: Number,
+      default: 0,
+    },
+    status: {
+      type: String,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+    archive: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
+
+const adminYieldSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: String,
+      default: v4,
+    },
+    Yield: {
+      type: Number,
+      default: 0,
+    },
+    status: {
+      type: String,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+    archive: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
+
+const Slot = mongoose.model("slots", slotSchema);
+const Yield = mongoose.model("yields", yieldSchema);
+const AdminYield = mongoose.model("adminyields", adminYieldSchema);
 
 module.exports = {
   Payment,
-  Wallet,
+  Slot,
+  Yield,
+  AdminYield,
 };

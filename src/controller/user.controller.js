@@ -21,9 +21,15 @@ const getPaymentHistoryByUser = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const activateClub = catchAsync(async (req, res) => {
+  const data = await UserService.activateClub(req);
+  res.send(data);
+});
+
 module.exports = {
   createUser,
   payments,
   getPaymentNotification,
   getPaymentHistoryByUser,
+  activateClub,
 };

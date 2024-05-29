@@ -8,7 +8,12 @@ const { oxaPay } = require("../config/config");
 const QS = require("qs");
 const Axios = require("axios");
 const { v4 } = require("uuid");
-const { Payment, Wallet } = require("../models/payment.history");
+const {
+  Payment,
+  Yield,
+  Slot,
+  AdminYield,
+} = require("../models/payment.history");
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -130,32 +135,7 @@ const payments = async (req) => {
 };
 
 const getPaymentNotification = async (req) => {
-  console.log(req.body);
-  // {
-  //   status: 'Paid',
-  //   trackId: '35901442',
-  //   amount: '100',
-  //   currency: 'USD',
-  //   feePaidByPayer: 0,
-  //   underPaidCover: 2,
-  //   email: 'muthamizhyadav@gmail.com',
-  //   orderId: '25170d3b-abec-473c-8fd2-74f25f80f1e0',
-  //   description: '',
-  //   date: '1716669460',
-  //   payDate: 0,
-  //   type: 'payment',
-  //   txID: 'OXP-35901442',
-  //   price: '100',
-  //   payAmount: '0.00144759',
-  //   payCurrency: 'BTC',
-  //   network: 'Bitcoin',
-  //   rate: '0.00001447'
-  // }
-
-  const { status } = req.body;
-
   let res;
-
   let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
   if (findByOrderId) {
     res = await Payment.findByIdAndUpdate(
@@ -167,18 +147,6 @@ const getPaymentNotification = async (req) => {
     );
   } else {
     res = await Payment.create(req.body);
-    let findwallet = await Wallet.findOne({ email: email });
-    if (!findwallet) {
-      await Wallet.create({ wallet: req.body.amount, email: req.body.email });
-    } else {
-      let existingWallet = findwallet.wallet ? findwallet.wallet : 0;
-      let totalwallet = existingWallet + req.body.amount;
-      findwallet = await Wallet.findByIdAndUpdate(
-        { _id: findwallet._id },
-        { wallet: totalwallet },
-        { new: true }
-      );
-    }
     return findByOrderId;
   }
 };
@@ -194,7 +162,73 @@ const getPaymentHistoryByUser = async (req) => {
   return paymentsByUser;
 };
 
-const activateClub = async (req) => {};
+const activateClub = async (req) => {
+  let userId = req.userId;
+  let finduserById = await User.findById(userId);
+  if (!finduserById) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
+  }
+  let userWallet = await Payment.aggregate([
+    {
+      $match: {
+        email: finduserById.email,
+      },
+    },
+    {
+      $addFields: {
+        amount: { $toDouble: "$amount" },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        count: { $sum: 1 },
+        totalSum: { $sum: "$amount" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        amount: "$totalSum",
+      },
+    },
+  ]);
+  let slots = await Slot.find().count();
+  let WalletAmount = userWallet.length == 0 ? 0 : userWallet[0].amount;
+  let convertedValue = Math.floor(WalletAmount / 100);
+  let slotcreations;
+  for (let index = 0; index < convertedValue; index++) {
+    if (index == 0) {
+      slotcreations = await Slot.create({
+        status: "Activated",
+        userId: userId,
+        no_ofSlot: index + 1,
+      });
+      Yield.create({
+        userId: userId,
+        slotId: slotcreations._id,
+        no_ofSlot: slotcreations.no_ofSlot,
+        status: slotcreations.status,
+      });
+      if (slots == 0) {
+        AdminYield.create({ Yield: 100 });
+      }
+    } else {
+      slotcreations = await Slot.create({
+        status: "Pending",
+        userId: userId,
+        no_ofSlot: index + 1,
+      });
+      Yield.create({
+        userId: userId,
+        slotId: slotcreations._id,
+        no_ofSlot: slotcreations.no_ofSlot,
+        status: slotcreations.status,
+      });
+    }
+  }
+  return { messages: "Slot Created..." };
+};
 
 module.exports = {
   createUser,
@@ -202,4 +236,5 @@ module.exports = {
   payments,
   getPaymentNotification,
   getPaymentHistoryByUser,
+  activateClub,
 };

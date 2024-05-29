@@ -11,4 +11,7 @@ router
 router
   .route("/getpayment/history/byuser")
   .get(VerifyAuthToken, UserController.getPaymentHistoryByUser);
+router
+  .route("/activate/club")
+  .get(VerifyAuthToken, UserController.activateClub);
 module.exports = router;
