@@ -14,6 +14,7 @@ const {
   Slot,
   AdminYield,
 } = require("../models/payment.history");
+const { SpliteYield } = require("../utils/yield.split");
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -111,7 +112,7 @@ const payments = async (req) => {
         currency: "USD",
         lifeTime: oxapayLifetime,
         callbackUrl: `${backendUrl}/v1/user/payment/notification?apiKey=${apiKey}`,
-        returnUrl: `${frontendUrl}/dashboard`,
+        returnUrl: `http://localhost:5174/app/DashBoard`,
         orderId: orderId,
         email,
         userId,
@@ -137,6 +138,7 @@ const payments = async (req) => {
 const getPaymentNotification = async (req) => {
   let res;
   let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
+  console.log(req.body);
   if (findByOrderId) {
     res = await Payment.findByIdAndUpdate(
       { _id: findByOrderId._id },
@@ -212,6 +214,8 @@ const activateClub = async (req) => {
       });
       if (slots == 0) {
         AdminYield.create({ Yield: 100 });
+      } else {
+        SpliteYield(userId)
       }
     } else {
       slotcreations = await Slot.create({

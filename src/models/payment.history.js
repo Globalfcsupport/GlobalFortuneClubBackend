@@ -126,6 +126,10 @@ const yieldSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    crowdStock: {
+      type: String,
+      default: 0,
+    },
     status: {
       type: String,
     },
@@ -168,11 +172,52 @@ const adminYieldSchema = new mongoose.Schema(
 
 const Slot = mongoose.model("slots", slotSchema);
 const Yield = mongoose.model("yields", yieldSchema);
-const AdminYield = mongoose.model("adminyields", adminYieldSchema);
+const AdminYield = mongoose.model("leftoveryields", adminYieldSchema);
+
+const yieldHistorySchema = new mongoose.Schema(
+  {
+    _id: {
+      type: String,
+      default: v4,
+    },
+    userId: {
+      type: String,
+    },
+    slotId: {
+      type: String,
+    },
+    no_ofSlot: {
+      type: Number,
+    },
+    totalYield: {
+      type: Number,
+      default: 200,
+    },
+    currentYield: {
+      type: Number,
+      default: 0,
+    },
+    status: {
+      type: String,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+    archive: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
+
+const Yeild_history = mongoose.model("yeildhistories", yieldHistorySchema);
 
 module.exports = {
   Payment,
   Slot,
   Yield,
   AdminYield,
+  Yeild_history,
 };
