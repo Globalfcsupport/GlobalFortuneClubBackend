@@ -28,28 +28,19 @@ const SpliteYield = async (userId) => {
         findLOY.save()
         element.crowdStock = static.toFixed(4)
         element.currentYield = static.toFixed(4)
-        element.save()
+        element.status = "Completed";
+        element.save();
+        await Slot.findByIdAndUpdate({ _id: element.slotId },{ status: "Completed" },{ new: true });
+        await Yeild_history.create({userId: element.userId,slotId: element.slotId,currentYield: element.splitAmount.toFixed(4)});
       }else{
         element = await Yield.findByIdAndUpdate({ _id: element._id },{$inc: { wallet: parseInt(splitTwo.toFixed(4)),crowdStock: parseInt(splitTwo.toFixed(4)), currentYield: parseInt(splitAmount.toFixed(4))}},{ new: true });
+        await Yeild_history.create({userId: element.userId,slotId: element.slotId,currentYield: element.splitAmount.toFixed(4)});
       }
       if (element.currentYield == element.totalYield) {
         element.status = "Completed";
         element.save();
-        await Slot.findByIdAndUpdate(
-          { _id: element.slotId },
-          { status: "Completed" },
-          { new: true }
-        );
+        await Slot.findByIdAndUpdate({ _id: element.slotId },{ status: "Completed" },{ new: true });
       }
-      await Yeild_history.create({
-        userId: element.userId,
-        slotId: element.slotId,
-        no_ofSlot: element.no_ofSlot,
-        totalYield: element.totalYield.toFixed(4),
-        currentYield: element.currentYield.toFixed(4),
-        status: element.status,
-        wallet: element.wallet.toFixed(4),
-      });
       let slotId = element.slotslotId;
       let findSlotByuserId = await Slot.find({userId: userId,status: "Pending"}).sort({ no_ofSlot: 1 });
       if (findSlotByuserId.length > 0) {
