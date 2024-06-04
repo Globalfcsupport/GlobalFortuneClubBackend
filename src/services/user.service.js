@@ -112,7 +112,7 @@ const payments = async (req) => {
         currency: "USD",
         lifeTime: oxapayLifetime,
         callbackUrl: `${backendUrl}/v1/user/payment/notification?apiKey=${apiKey}`,
-        returnUrl: `http://localhost:5174/app/DashBoard`,
+        returnUrl: `http://localhost:5000/app/DashBoard`,
         orderId: orderId,
         email,
         userId,
