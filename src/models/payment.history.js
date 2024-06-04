@@ -127,7 +127,7 @@ const yieldSchema = new mongoose.Schema(
       default: 0,
     },
     crowdStock: {
-      type: String,
+      type: Number,
       default: 0,
     },
     status: {
@@ -140,6 +140,10 @@ const yieldSchema = new mongoose.Schema(
     archive: {
       type: Boolean,
       default: false,
+    },
+    wallet: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }

@@ -215,6 +215,7 @@ const activateClub = async (req) => {
       if (slots == 0) {
         AdminYield.create({ Yield: 100 });
       } else {
+        console.log("ELSE");
         SpliteYield(userId)
       }
     } else {

@@ -3,11 +3,14 @@ const { Slot, Yield, AdminYield } = require("../models/payment.history");
 const ApiError = require("./ApiError");
 
 const SpliteYield = async (userId) => {
+
   // find Existing Active Slots Yields
   let findExistingActivatedSlots = await Yield.find({
     userId: { $ne: userId },
     status: "Activated",
   });
+
+  console.log(findExistingActivatedSlots,"LLLLL");
 
   let findLOY = await AdminYield.findOne().sort({ createdAt: -1 });
 
@@ -16,7 +19,9 @@ const SpliteYield = async (userId) => {
     status: "Activated",
   }).countDocuments();
 
-  const splitAmount = findLOY.Yield + 100 / findExistingActivatedSlotsCount;
+  let splitAmount = findLOY.Yield + 100 / findExistingActivatedSlotsCount;
+  findLOY.Yield = 0
+  findLOY.save()
   const splitTwo = splitAmount / 2
 
   if (findExistingActivatedSlotsCount > 0) {
@@ -24,7 +29,7 @@ const SpliteYield = async (userId) => {
       let element = findExistingActivatedSlots[index];
       element = await Yield.findByIdAndUpdate(
         { _id: element._id },
-        { $inc: { currentYield: splitTwo , crowdStock:splitTwo} },
+        { $inc: { wallet: parseInt(splitTwo) , crowdStock: parseInt(splitTwo), currentYield:parseInt(splitAmount) } },
         { new: true }
       );
       if (element.currentYield > 200) {
