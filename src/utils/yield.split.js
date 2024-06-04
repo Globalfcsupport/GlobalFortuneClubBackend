@@ -47,7 +47,6 @@ const SpliteYield = async (userId) => {
         );
       }
       let slotId = element.slotslotId;
-
       let findSlotByuserId = await Slot.find({ userId: userId, status: "Pending" }).sort({ no_ofSlot: 1 })
       if (findSlotByuserId.length > 0) {
         let findSlotById = await Slot.findById(slotId)
