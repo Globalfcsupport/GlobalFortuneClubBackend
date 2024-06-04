@@ -1,5 +1,5 @@
 const httpStatus = require("http-status");
-const { Slot, Yield, AdminYield } = require("../models/payment.history");
+const { Slot, Yield, AdminYield, Yeild_history } = require("../models/payment.history");
 const ApiError = require("./ApiError");
 
 const SpliteYield = async (userId) => {
@@ -32,7 +32,13 @@ const SpliteYield = async (userId) => {
         { $inc: { wallet: parseInt(splitTwo) , crowdStock: parseInt(splitTwo), currentYield:parseInt(splitAmount) } },
         { new: true }
       );
-      if (element.currentYield > 200) {
+
+      if(element.currentYield == element.totalYield ){
+        element.status = "Completed"
+        element.save()
+      }
+      await Yeild_history.create({userId:element.userId, slotId:element.slotId,no_ofSlot:element.no_ofSlot,totalYield:element.totalYield,currentYield:element.currentYield,status:element.status,wallet:element.wallet})
+      if (element.currentYield >= 200) {
         let remaining = updateYields - 200;
         await Yield.findByIdAndUpdate(
           { _id: element._id },
@@ -40,6 +46,8 @@ const SpliteYield = async (userId) => {
           { $set: { status: "Completed" } },
           { new: true }
         );
+      await Yeild_history.create({userId:element.userId, slotId:element.slotId,no_ofSlot:element.no_ofSlot,totalYield:element.totalYield,currentYield:element.currentYield,status:element.status,wallet:element.wallet})
+
         await Slot.findByIdAndUpdate(
           { _id: element.slotId },
           { $set: { status: "Completed" } },
