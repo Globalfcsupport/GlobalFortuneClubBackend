@@ -191,13 +191,12 @@ const activateClub = async (req) => {
     {
       $project: {
         _id: 0,
-        amount: { $round: ["$totalSum", 4] },
+        amount: "$totalSum",
       },
     },
   ]);
   let slots = await Slot.find().count();
-  let WalletAmount =
-    userWallet.length == 0 ? 0 : userWallet[0].amount
+  let WalletAmount = userWallet.length == 0 ? 0 : userWallet[0].amount.toFixed(4);
   let convertedValue = Math.floor(WalletAmount / 100);
   let slotcreations;
   for (let index = 0; index < convertedValue; index++) {
@@ -216,7 +215,8 @@ const activateClub = async (req) => {
       if (slots == 0) {
         AdminYield.create({ Yield: 100 });
       } else {
-        SpliteYield(userId);
+        console.log("ELSE");
+        SpliteYield(userId)
       }
     } else {
       slotcreations = await Slot.create({
