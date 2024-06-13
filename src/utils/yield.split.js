@@ -31,6 +31,7 @@ const SpliteYield = async (userId) => {
         let staticAmount = 100;
         let rem = YIELD - 200;
         findLOY.Yield = rem.toFixed(4);
+        console.log(findLOY);
         await findLOY.save();
 
         element.crowdStock = staticAmount.toFixed(4);
