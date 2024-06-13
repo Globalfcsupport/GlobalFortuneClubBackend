@@ -55,7 +55,7 @@ const SpliteYield = async (userId) => {
           },
           { new: true }
         );
-        console.log(element);
+        console.log(element,"element");
 
         await Yeild_history.create({ userId: element.userId, slotId: element.slotId, currentYield: splitAmount.toFixed(4) });
       }
@@ -67,6 +67,7 @@ const SpliteYield = async (userId) => {
       }
 
       let findSlotByUserId = await Slot.find({ userId: userId, status: "Pending" }).sort({ no_ofSlot: 1 });
+      console.log(findSlotByUserId,"Slot By User");
       if (findSlotByUserId.length > 0) {
         let findSlotById = await Slot.findById(element.slotId);
         console.log(findSlotById,"SLOT");
