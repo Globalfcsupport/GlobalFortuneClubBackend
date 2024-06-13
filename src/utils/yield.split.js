@@ -6,6 +6,7 @@ const {
   Yeild_history,
 } = require("../models/payment.history");
 const ApiError = require("./ApiError");
+const { Setting } = require('../models/admin.model')
 
 const SpliteYield = async (userId) => {
   // find Existing Active Slots Yields
@@ -70,7 +71,9 @@ const SpliteYield = async (userId) => {
         let findSlotById = await Slot.findById(element.slotId);
         if (findSlotById) {
           let findThreeSlot = await Slot.countDocuments({ status: "Activated", createdAt: { $gt: findSlotById.createdAt } });
-          if (findThreeSlot >= 3) {
+          console.log(findThreeSlot,"LKLK");
+          let findSpacer = await Setting.findOne({_id:{$ne:null}})
+          if (findThreeSlot >= findSpacer.Sapcer) {
             await Slot.findByIdAndUpdate(findSlotByUserId[0]._id, { status: "Activated" }, { new: true });
             await Yield.findByIdAndUpdate(findSlotByUserId[0]._id, { status: "Activated" }, { new: true });
           }
