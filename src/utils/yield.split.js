@@ -38,6 +38,7 @@ const SpliteYield = async (userId) => {
         element.currentYield = staticAmount.toFixed(4);
         element.status = "Completed";
         await element.save();
+        console.log(element);
 
         await Slot.findByIdAndUpdate(element.slotId, { status: "Completed" }, { new: true });
         await Yeild_history.create({ userId: element.userId, slotId: element.slotId, currentYield: splitAmount.toFixed(4) });
