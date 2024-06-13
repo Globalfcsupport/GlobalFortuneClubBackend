@@ -69,6 +69,7 @@ const SpliteYield = async (userId) => {
       let findSlotByUserId = await Slot.find({ userId: userId, status: "Pending" }).sort({ no_ofSlot: 1 });
       if (findSlotByUserId.length > 0) {
         let findSlotById = await Slot.findById(element.slotId);
+        console.log(findSlotById,"SLOT");
         if (findSlotById) {
           let findThreeSlot = await Slot.countDocuments({ status: "Activated", createdAt: { $gt: findSlotById.createdAt } });
           console.log(findThreeSlot,"LKLK");
