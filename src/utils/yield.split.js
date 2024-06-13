@@ -66,20 +66,24 @@ const SpliteYield = async (userId) => {
         await Slot.findByIdAndUpdate(element.slotId, { status: "Completed" }, { new: true });
       }
 
-      let findSlotByUserId = await Slot.find({ userId: userId, status: "Pending" }).sort({ no_ofSlot: 1 });
+      let findSlotByUserId = await Slot.find({status: "Pending" }).sort({ createdAt: -1 });
       console.log(findSlotByUserId,"Slot By User");
       if (findSlotByUserId.length > 0) {
-        let findSlotById = await Slot.findById(element.slotId);
-        console.log(findSlotById,"SLOT");
-        if (findSlotById) {
-          let findThreeSlot = await Slot.countDocuments({ status: "Activated", createdAt: { $gt: findSlotById.createdAt } });
-          console.log(findThreeSlot,"LKLK");
-          let findSpacer = await Setting.findOne({_id:{$ne:null}})
-          if (findThreeSlot >= findSpacer.Sapcer) {
-            await Slot.findByIdAndUpdate(findSlotByUserId[0]._id, { status: "Activated" }, { new: true });
-            await Yield.findByIdAndUpdate(findSlotByUserId[0]._id, { status: "Activated" }, { new: true });
-          }
-        }
+        let findSlotToActivate = await Slot.findOne({_id:findSlotByUserId[0]._id})
+        findSlotToActivate.status = "Activated"
+        findSlotToActivate.save()
+        await Yield.findOneAndUpdate({slotId:findSlotToActivate},{status:"Activated"},{new:true})
+        // let findSlotById = await Slot.findById(element.slotId);
+        // console.log(findSlotById,"SLOT");
+        // if (findSlotById) {
+        //   let findThreeSlot = await Slot.countDocuments({ status: "Activated", createdAt: { $gt: findSlotById.createdAt } });
+        //   console.log(findThreeSlot,"LKLK");
+        //   let findSpacer = await Setting.findOne({_id:{$ne:null}})
+        //   if (findThreeSlot >= findSpacer.Sapcer) {
+        //     await Slot.findByIdAndUpdate(findSlotByUserId[0]._id, { status: "Activated" }, { new: true });
+        //     await Yield.findByIdAndUpdate(findSlotByUserId[0]._id, { status: "Activated" }, { new: true });
+        //   }
+        // }
       }
     }
   }
