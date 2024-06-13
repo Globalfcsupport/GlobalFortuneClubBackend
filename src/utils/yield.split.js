@@ -74,11 +74,12 @@ const SpliteYield = async (userId) => {
         findSlotToActivate.save()
         await Yield.findOneAndUpdate({slotId:findSlotToActivate},{status:"Activated"},{new:true})
         // Split
-        let findExistingActivatedSlots = await Yield.find({status: "Activated", userId:{$ne:userId} });
+
+        let findExistingActivatedSlots = await Yield.find({status: "Activated"});
         console.log(findExistingActivatedSlots, "Existing Active Slots");
   
          let findLOY = await AdminYield.findOne().sort({ createdAt: -1 });
-          let findExistingActivatedSlotsCount = await Yield.countDocuments({status: "Activated",userId:{$ne:userId} });
+          let findExistingActivatedSlotsCount = await Yield.countDocuments({status: "Activated"});
   
           if (findExistingActivatedSlotsCount > 0 && findLOY) {
             let splitAmount = (findLOY.Yield + 100) / findExistingActivatedSlotsCount;
