@@ -15,9 +15,11 @@ const AutoActivateSlot = async () => {
       const pendingSlot = pendingSlots[index];
       let userId = pendingSlot.userId;
       let findLatestActivatedSloted = await Slot.findOne({status:"Activates"}).sort({createdAt:-1})
+      if(findLatestActivatedSloted){
+        let findActivatedSlot = await Slot.find({createdAt:{$gte:findLatestActivatedSloted.createdAt}})
       let settingForSpacer = await Setting.findOne().sort({createdAt:-1})
       let spacer = settingForSpacer.Sapcer
-      if(spacer >= findLatestActivatedSloted.length ){
+      if(spacer >= findActivatedSlot.length ){
         let findLOY = await AdminYield.findOne().sort({ createdAt: -1 });
        let findExistingActivatedSlots = await Yield.find({status: "Activated"});
         let findExistingActivatedSlotsCount = await Yield.countDocuments({status: "Activated"});
@@ -77,8 +79,9 @@ const AutoActivateSlot = async () => {
               }
             }
           }
-
       }
+      }
+      
     }
   }
 };
