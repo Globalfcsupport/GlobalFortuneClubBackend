@@ -14,4 +14,6 @@ router
 router
   .route("/activate/club")
   .get(VerifyAuthToken, UserController.activateClub);
+router.route("/get/users/chats").get(VerifyAuthToken, UserController.getUsersList);
+router.route("/:id").get(VerifyAuthToken, UserController.getUserById)
 module.exports = router;

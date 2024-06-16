@@ -27,10 +27,10 @@ app.get("/", (req, res) => {
 });
 
 
-cron.schedule('* * * * *', () => {
-  console.log('running a task every minute')
-  AutoActivateSlot()
-});
+// cron.schedule('* * * * *', () => {
+//   console.log('running a task every minute')
+//   AutoActivateSlot()
+// });
 
 app.use("/v1", routes);
 app.use("/v1/auth", authLimiter);

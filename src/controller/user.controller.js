@@ -26,10 +26,22 @@ const activateClub = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getUsersList = catchAsync(async (req, res) => {
+  const data = await UserService.getUsersList(req);
+  res.send(data);
+});
+
+const getUserById = catchAsync(async (req, res)=>{
+  const data = await UserService.getUserById(req);
+  res.send(data)
+})
+
 module.exports = {
   createUser,
   payments,
   getPaymentNotification,
   getPaymentHistoryByUser,
   activateClub,
+  getUsersList,
+  getUserById
 };
