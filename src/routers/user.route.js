@@ -16,4 +16,7 @@ router
   .get(VerifyAuthToken, UserController.activateClub);
 router.route("/get/users/chats").get(VerifyAuthToken, UserController.getUsersList);
 router.route("/:id").get(VerifyAuthToken, UserController.getUserById)
+router.route("/auth/details").get(VerifyAuthToken, UserController.getUserbyAuth);
+router.route("/create/room/:id").get(VerifyAuthToken,UserController.createGroup);
+router.route("/get/chat/history/:id").get(VerifyAuthToken, UserController.getChathistory);
 module.exports = router;

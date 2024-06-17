@@ -36,6 +36,21 @@ const getUserById = catchAsync(async (req, res)=>{
   res.send(data)
 })
 
+const getUserbyAuth = catchAsync(async (req,res)=>{
+  const data = await UserService.getUserbyAuth(req);
+  res.send(data)
+})
+
+const createGroup = catchAsync (async (req,res)=>{
+  const data = await UserService.createGroup(req);
+  res.send(data)
+})
+
+const getChathistory = catchAsync (async (req,res)=>{
+  const data = await UserService.getChathistory(req);
+  res.send(data)
+})
+
 module.exports = {
   createUser,
   payments,
@@ -43,5 +58,8 @@ module.exports = {
   getPaymentHistoryByUser,
   activateClub,
   getUsersList,
-  getUserById
+  getUserById,
+  getUserbyAuth,
+  createGroup,
+  getChathistory
 };

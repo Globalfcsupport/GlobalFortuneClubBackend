@@ -15,6 +15,7 @@ const {
   AdminYield,
 } = require("../models/payment.history");
 const { SpliteYield } = require("../utils/yield.split");
+const Chat = require("../models/chat.model");
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -240,20 +241,54 @@ const getUsersList = async (req) => {
   let values = await User.aggregate([
     {
       $match: {
-        $and: [{ _id: { $ne: userId } }, { role:{$ne:"admin"}  }],
+        $and: [{ _id: { $ne: userId } }, { role: { $ne: "admin" } }],
       },
     },
   ]);
-  return values
+  return values;
 };
 
-const getUserById = async (req)=>{
+const getUserById = async (req) => {
   let id = req.params.id;
-  let values = await User.findById(id)
-  if(!values){
-    throw new ApiError(httpStatus.NOT_FOUND, "User Not Found")
+  let values = await User.findById(id);
+  if (!values) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User Not Found");
   }
-  return values
+  return values;
+};
+
+const getUserbyAuth = async (req) => {
+  let userId = req.userId;
+  let values = await User.findById(userId);
+  if (!values) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User Not Found");
+  }
+  return values;
+};
+
+const createGroup = async (req) => {
+  const id = req.params.id
+  const userId = req.userId
+  let users = [userId, id];
+  let findExist = await Chat.findOne({ userIds: { $all: users } }); 
+   if (findExist) {
+    return findExist;
+  } else {
+    let values = await Chat.create({ userIds: users });
+    return values;
+  }
+};
+
+const getChathistory = async (req)=>{
+  let id = req.params.id;
+  let userId = req.userId
+  let users = [userId, id];
+  let findExist = await Chat.findOne({ userIds: { $all: users } }); 
+  if(findExist){
+    return findExist.messages.reverse()
+  }else{
+    return []
+  }
 }
 
 module.exports = {
@@ -265,4 +300,7 @@ module.exports = {
   activateClub,
   getUsersList,
   getUserById,
+  getUserbyAuth,
+  createGroup,
+  getChathistory,
 };
