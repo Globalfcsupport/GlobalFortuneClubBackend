@@ -19,4 +19,8 @@ router.route("/:id").get(VerifyAuthToken, UserController.getUserById)
 router.route("/auth/details").get(VerifyAuthToken, UserController.getUserbyAuth);
 router.route("/create/room/:id").get(VerifyAuthToken,UserController.createGroup);
 router.route("/get/chat/history/:id").get(VerifyAuthToken, UserController.getChathistory);
+router.route("/get/fc/slots").get(VerifyAuthToken, UserController.getFcSlots)
+router.route("/get/users/byrefid").get(VerifyAuthToken, UserController.getUsersByRefId);
+router.route("/get/user/details/dashboard").get(VerifyAuthToken, UserController.getUserDetails_Dashboard);
+router.route("/get/topup/details").get(VerifyAuthToken, UserController.getTopupDetails);
 module.exports = router;

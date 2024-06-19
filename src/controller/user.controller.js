@@ -31,25 +31,45 @@ const getUsersList = catchAsync(async (req, res) => {
   res.send(data);
 });
 
-const getUserById = catchAsync(async (req, res)=>{
+const getUserById = catchAsync(async (req, res) => {
   const data = await UserService.getUserById(req);
-  res.send(data)
-})
+  res.send(data);
+});
 
-const getUserbyAuth = catchAsync(async (req,res)=>{
+const getUserbyAuth = catchAsync(async (req, res) => {
   const data = await UserService.getUserbyAuth(req);
-  res.send(data)
-})
+  res.send(data);
+});
 
-const createGroup = catchAsync (async (req,res)=>{
+const createGroup = catchAsync(async (req, res) => {
   const data = await UserService.createGroup(req);
-  res.send(data)
-})
+  res.send(data);
+});
 
-const getChathistory = catchAsync (async (req,res)=>{
+const getChathistory = catchAsync(async (req, res) => {
   const data = await UserService.getChathistory(req);
-  res.send(data)
-})
+  res.send(data);
+});
+
+const getFcSlots = catchAsync(async (req, res) => {
+  const data = await UserService.getFcSlots(req);
+  res.send(data);
+});
+
+const getUsersByRefId = catchAsync(async (req, res) => {
+  const data = await UserService.getUsersByRefId(req);
+  res.send(data);
+});
+
+const getUserDetails_Dashboard = catchAsync(async (req, res) => {
+  const data = await UserService.getUserDetails_Dashboard(req);
+  res.send(data);
+});
+
+const getTopupDetails = catchAsync(async (req, res) => {
+  const data = await UserService.getTopupDetails(req);
+  res.send(data);
+});
 
 module.exports = {
   createUser,
@@ -61,5 +81,9 @@ module.exports = {
   getUserById,
   getUserbyAuth,
   createGroup,
-  getChathistory
+  getChathistory,
+  getFcSlots,
+  getUsersByRefId,
+  getUserDetails_Dashboard,
+  getTopupDetails,
 };

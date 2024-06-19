@@ -11,7 +11,25 @@ const updateSetting = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getAppReport_Dashboard = catchAsync(async (req, res) => {
+  const data = await AdminService.getAppReport_Dashboard(req);
+  res.send(data);
+});
+
+const getUserList = catchAsync(async (req, res) => {
+  const data = await AdminService.getUserList(req);
+  res.send(data);
+});
+
+const TrnsactionHistories = catchAsync(async (req, res) => {
+  const data = await AdminService.TrnsactionHistories(req);
+  res.send(data);
+});
+
 module.exports = {
   createSetting,
   updateSetting,
+  getAppReport_Dashboard,
+  getUserList,
+  TrnsactionHistories,
 };

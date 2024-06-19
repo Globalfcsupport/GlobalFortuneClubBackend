@@ -30,6 +30,7 @@ const VerifyAuthToken = async (req, res, next) => {
     }
     req.userId = finduserById._id;
     req.role = finduserById.role;
+    req.refId = finduserById.refId;
     return next();
   } catch (error) {
     return res.send(httpStatus.UNAUTHORIZED, {

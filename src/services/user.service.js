@@ -267,11 +267,11 @@ const getUserbyAuth = async (req) => {
 };
 
 const createGroup = async (req) => {
-  const id = req.params.id
-  const userId = req.userId
+  const id = req.params.id;
+  const userId = req.userId;
   let users = [userId, id];
-  let findExist = await Chat.findOne({ userIds: { $all: users } }); 
-   if (findExist) {
+  let findExist = await Chat.findOne({ userIds: { $all: users } });
+  if (findExist) {
     return findExist;
   } else {
     let values = await Chat.create({ userIds: users });
@@ -279,17 +279,219 @@ const createGroup = async (req) => {
   }
 };
 
-const getChathistory = async (req)=>{
+const getChathistory = async (req) => {
   let id = req.params.id;
-  let userId = req.userId
+  let userId = req.userId;
   let users = [userId, id];
-  let findExist = await Chat.findOne({ userIds: { $all: users } }); 
-  if(findExist){
-    return findExist.messages.reverse()
-  }else{
-    return []
+  let findExist = await Chat.findOne({ userIds: { $all: users } });
+  if (findExist) {
+    return findExist.messages.reverse();
+  } else {
+    return [];
   }
-}
+};
+
+const getFcSlots = async (req) => {
+  let userId = req.userId;
+  let status = req.query.status;
+  let statusMatch = { status: "Activated" };
+  if (status) {
+    statusMatch = { status: status };
+  }
+  console.log(userId);
+  let values = await Yield.aggregate([
+    {
+      $match: {
+        $and: [{ userId: userId }, statusMatch],
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        userId: 1,
+        slotId: 1,
+        no_ofSlot: 1,
+        totalYield: 1,
+        crowdStock: 1,
+        currentYield: 1,
+        status: 1,
+        wallet: 1,
+        date: { $dateToString: { format: "%d-%m-%Y", date: "$createdAt" } },
+      },
+    },
+  ]);
+  return values;
+};
+
+const getUsersByRefId = async (req) => {
+  let refId = req.refId;
+  console.log(refId, "OPOP");
+  const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
+  const todayEnd = new Date(new Date().setHours(24, 0, 0, 0));
+  let values = await User.aggregate([
+    {
+      $match: {
+        uplineId: refId,
+      },
+    },
+    {
+      $facet: {
+        todayData: [
+          {
+            $match: {
+              createdAt: {
+                $gte: todayStart,
+                $lt: todayEnd,
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              count: { $sum: 1 },
+              documents: { $push: "$$ROOT" },
+            },
+          },
+        ],
+        overallData: [
+          {
+            $group: {
+              _id: null,
+              count: { $sum: 1 },
+              documents: { $push: "$$ROOT" },
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        todayCount: { $arrayElemAt: ["$todayData.count", 0] },
+        overallCount: { $arrayElemAt: ["$overallData.count", 0] },
+        documents: {
+          $concatArrays: [
+            { $arrayElemAt: ["$todayData.documents", 0] },
+            { $arrayElemAt: ["$overallData.documents", 0] },
+          ],
+        },
+      },
+    },
+  ]);
+  return values;
+};
+
+const getUserDetails_Dashboard = async (req) => {
+  let userId = req.userId;
+  let values = await User.aggregate([
+    {
+      $match: { _id: userId },
+    },
+    {
+      $lookup: {
+        from: "yields",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline: [
+          {
+            $group: {
+              _id: null,
+              walletTotal: { $sum: "$wallet" },
+              croudTotal: { $sum: "$crowdStock" },
+              yieldTotal: { $sum: "$currentYield" },
+              activatedTotal: {
+                $sum: {
+                  $cond: [{ $eq: ["$status", "Activated"] }, 1, 0],
+                },
+              },
+              completedTotal: {
+                $sum: {
+                  $cond: [{ $eq: ["$status", "Completed"] }, 1, 0],
+                },
+              },
+            },
+          },
+        ],
+        as: "mywallet",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$mywallet",
+      },
+    },
+    {
+      $lookup: {
+        from: "payments",
+        localField: "email",
+        foreignField: "email",
+        pipeline: [
+          {
+            $match: { status: "Paid" },
+          },
+          {
+            $group: {
+              _id: null,
+              total: { $sum: "$price" },
+            },
+          },
+        ],
+        as: "Payment",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$Payment",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        role: 1,
+        userName: 1,
+        email: 1,
+        active: 1,
+        refId: 1,
+        uplineId: 1,
+        wallet: { $ifNull: ["$mywallet.walletTotal", 0] },
+        crowd: { $ifNull: ["$mywallet.croudTotal", 0] },
+        Yield: { $ifNull: ["$mywallet.yieldTotal", 0] },
+        activatedTotal: { $ifNull: ["$mywallet.activatedTotal", 0] },
+        completedTotal: { $ifNull: ["$mywallet.completedTotal", 0] },
+        totalCryptoTopup: { $ifNull: ["$Payment.total", 0] },
+        started: {
+          $cond: {
+            if: { $gte: ["$mywallet.activatedTotal", 1] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+  ]);
+  return values[0];
+};
+
+const getTopupDetails = async (req) => {
+  let userId = req.userId;
+  let values = await User.aggregate([
+    {
+      $match: {
+        _id: userId,
+      },
+    },
+    {
+      $lookup: {
+        from: "payments",
+        localField: "email",
+        foreignField: "email",
+        as: "Payment",
+      },
+    },
+  ]);
+  return values[0];
+};
 
 module.exports = {
   createUser,
@@ -303,4 +505,8 @@ module.exports = {
   getUserbyAuth,
   createGroup,
   getChathistory,
+  getFcSlots,
+  getUsersByRefId,
+  getUserDetails_Dashboard,
+  getTopupDetails,
 };
