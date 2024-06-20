@@ -155,12 +155,6 @@ const getPaymentNotification = async (req) => {
     );
     console.log(updated);
   } else {
-    let updated = await User.findOneAndUpdate(
-      { email: req.body.email },
-      { $inc: { myWallet: req.body.amount } },
-      { new: true }
-    );
-    console.log(updated);
     res = await Payment.create(req.body);
     return findByOrderId;
   }
