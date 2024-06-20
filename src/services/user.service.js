@@ -508,6 +508,7 @@ const activateClub = async (req) => {
   }
   let createSlot = await Slot.create({userId:userId, status:"Activated"})
   let createYield = await Yield.create({userId:userId, status:"Activated", slotId:createSlot._id, totalYield:200, currentYield:0,crowdStock:0})
+  SpliteYield(userId)
   return createYield
 };
 
