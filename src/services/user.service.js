@@ -141,7 +141,11 @@ const getPaymentNotification = async (req) => {
   let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
   console.log(req.body);
   if (findByOrderId) {
-    await User.findOneAndUpdate({email:req.body.email}, {$inc:{myWallet:req.body.amount}}, {new:true})
+    await User.findOneAndUpdate(
+      { email: req.body.email },
+      { $inc: { myWallet: req.body.amount } },
+      { new: true }
+    );
     res = await Payment.findByIdAndUpdate(
       { _id: findByOrderId._id },
       req.body,
@@ -495,9 +499,17 @@ const getTopupDetails = async (req) => {
 };
 
 const activateClub = async (req) => {
-  let userId = req.userId
-  
-}
+  let userId = req.userId;
+  let findUserbyId = await User.findById(userId);
+  if (!findUserbyId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
+  } else if (findUserbyId.amount < 100) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
+  }
+  let createSlot = await Slot.create({userId:userId, status:"Activated"})
+  let createYield = await Yield.create({userId:userId, status:"Activated", slotId:createSlot._id, totalYield:200, currentYield:0,crowdStock:0})
+  return createYield
+};
 
 module.exports = {
   createUser,
