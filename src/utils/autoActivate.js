@@ -16,7 +16,8 @@ const AutoActivateSlot = async () => {
       const element = pendingSlots[index];
       let findYield = await Yield.findOne({userId:element._id}).sort({createdAt:-1});
       let findSapce = await Yield.find({createdAt:{$gt:findYield.createdAt}}).countDocuments()
-      if(findSetting.Sapcer>=findSapce.length){
+      if(findSetting.Sapcer>=findSapce){
+        
         
       }
 

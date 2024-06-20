@@ -6,7 +6,8 @@ const {
   Yeild_history,
 } = require("../models/payment.history");
 const ApiError = require("./ApiError");
-const { Setting } = require('../models/admin.model')
+const { Setting } = require('../models/admin.model');
+const User = require("../models/users.model");
 
 const SpliteYield = async (userId) => {
   // find Existing Active Slots Yields
@@ -55,6 +56,12 @@ const SpliteYield = async (userId) => {
           },
           { new: true }
         );
+        await User.findByIdAndUpdate({_id:element.userId}, {
+          $inc: {
+            myWallet: parseFloat(splitTwo.toFixed(4)),
+            crowdStock: parseFloat(splitTwo.toFixed(4)),
+          }
+        })
         console.log(element,"element");
 
         await Yeild_history.create({ userId: element.userId, slotId: element.slotId, currentYield: splitAmount.toFixed(4) });
