@@ -139,13 +139,8 @@ const payments = async (req) => {
 const getPaymentNotification = async (req) => {
   let res;
   let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
-  console.log(req.body);
+  console.log(req.body.email);
   if (findByOrderId) {
-    await User.findOneAndUpdate(
-      { email: req.body.email },
-      { $inc: { myWallet: req.body.amount } },
-      { new: true }
-    );
     res = await Payment.findByIdAndUpdate(
       { _id: findByOrderId._id },
       req.body,
@@ -153,7 +148,19 @@ const getPaymentNotification = async (req) => {
         new: true,
       }
     );
+    let updated = await User.findOneAndUpdate(
+      { email: req.body.email },
+      { $inc: { myWallet: req.body.amount } },
+      { new: true }
+    );
+    console.log(updated);
   } else {
+    let updated = await User.findOneAndUpdate(
+      { email: req.body.email },
+      { $inc: { myWallet: req.body.amount } },
+      { new: true }
+    );
+    console.log(updated);
     res = await Payment.create(req.body);
     return findByOrderId;
   }
@@ -506,11 +513,22 @@ const activateClub = async (req) => {
   } else if (findUserbyId.amount < 100) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
   }
-  findUserbyId = await User.findByIdAndUpdate({_id:userId}, {started:true},{new:true});
-  let createSlot = await Slot.create({userId:userId, status:"Activated"})
-  let createYield = await Yield.create({userId:userId, status:"Activated", slotId:createSlot._id, totalYield:200, currentYield:0,crowdStock:0})
-  SpliteYield(userId)
-  return createYield
+  findUserbyId = await User.findByIdAndUpdate(
+    { _id: userId },
+    { started: true },
+    { new: true }
+  );
+  let createSlot = await Slot.create({ userId: userId, status: "Activated" });
+  let createYield = await Yield.create({
+    userId: userId,
+    status: "Activated",
+    slotId: createSlot._id,
+    totalYield: 200,
+    currentYield: 0,
+    crowdStock: 0,
+  });
+  SpliteYield(userId);
+  return createYield;
 };
 
 module.exports = {
