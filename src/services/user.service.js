@@ -522,7 +522,7 @@ const activateClub = async (req) => {
   }
   findUserbyId = await User.findByIdAndUpdate(
     { _id: userId },
-    { started: true },
+    { started: true ,$inc:{myWallet:-100}},
     { new: true }
   );
   let createSlot = await Slot.create({ userId: userId, status: "Activated" });
