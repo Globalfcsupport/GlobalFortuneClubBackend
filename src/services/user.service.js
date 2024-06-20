@@ -141,6 +141,7 @@ const getPaymentNotification = async (req) => {
   let findByOrderId = await Payment.findOne({ orderId: req.body.orderId });
   console.log(req.body);
   if (findByOrderId) {
+    await User.findOneAndUpdate({email:req.body.email}, {$inc:{myWallet:req.body.amount}}, {new:true})
     res = await Payment.findByIdAndUpdate(
       { _id: findByOrderId._id },
       req.body,
@@ -165,76 +166,76 @@ const getPaymentHistoryByUser = async (req) => {
   return paymentsByUser;
 };
 
-const activateClub = async (req) => {
-  let userId = req.userId;
-  let finduserById = await User.findById(userId);
-  if (!finduserById) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
-  }
-  let userWallet = await Payment.aggregate([
-    {
-      $match: {
-        email: finduserById.email,
-      },
-    },
-    {
-      $addFields: {
-        amount: { $toDouble: "$amount" },
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        count: { $sum: 1 },
-        totalSum: { $sum: "$amount" },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        amount: "$totalSum",
-      },
-    },
-  ]);
-  let slots = await Slot.find().count();
-  let WalletAmount =
-    userWallet.length == 0 ? 0 : userWallet[0].amount.toFixed(4);
-  let convertedValue = Math.floor(WalletAmount / 100);
-  let slotcreations;
-  for (let index = 0; index < convertedValue; index++) {
-    if (index == 0) {
-      slotcreations = await Slot.create({
-        status: "Activated",
-        userId: userId,
-        no_ofSlot: index + 1,
-      });
-      Yield.create({
-        userId: userId,
-        slotId: slotcreations._id,
-        no_ofSlot: slotcreations.no_ofSlot,
-        status: slotcreations.status,
-      });
-      if (slots == 0) {
-        AdminYield.create({ Yield: 100 });
-      } else {
-        SpliteYield(userId);
-      }
-    } else {
-      slotcreations = await Slot.create({
-        status: "Pending",
-        userId: userId,
-        no_ofSlot: index + 1,
-      });
-      Yield.create({
-        userId: userId,
-        slotId: slotcreations._id,
-        no_ofSlot: slotcreations.no_ofSlot,
-        status: slotcreations.status,
-      });
-    }
-  }
-  return { messages: "Slot Created..." };
-};
+// const activateClub = async (req) => {
+//   let userId = req.userId;
+//   let finduserById = await User.findById(userId);
+//   if (!finduserById) {
+//     throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
+//   }
+//   let userWallet = await Payment.aggregate([
+//     {
+//       $match: {
+//         email: finduserById.email,
+//       },
+//     },
+//     {
+//       $addFields: {
+//         amount: { $toDouble: "$amount" },
+//       },
+//     },
+//     {
+//       $group: {
+//         _id: null,
+//         count: { $sum: 1 },
+//         totalSum: { $sum: "$amount" },
+//       },
+//     },
+//     {
+//       $project: {
+//         _id: 0,
+//         amount: "$totalSum",
+//       },
+//     },
+//   ]);
+//   let slots = await Slot.find().count();
+//   let WalletAmount =
+//     userWallet.length == 0 ? 0 : userWallet[0].amount.toFixed(4);
+//   let convertedValue = Math.floor(WalletAmount / 100);
+//   let slotcreations;
+//   for (let index = 0; index < convertedValue; index++) {
+//     if (index == 0) {
+//       slotcreations = await Slot.create({
+//         status: "Activated",
+//         userId: userId,
+//         no_ofSlot: index + 1,
+//       });
+//       Yield.create({
+//         userId: userId,
+//         slotId: slotcreations._id,
+//         no_ofSlot: slotcreations.no_ofSlot,
+//         status: slotcreations.status,
+//       });
+//       if (slots == 0) {
+//         AdminYield.create({ Yield: 100 });
+//       } else {
+//         SpliteYield(userId);
+//       }
+//     } else {
+//       slotcreations = await Slot.create({
+//         status: "Pending",
+//         userId: userId,
+//         no_ofSlot: index + 1,
+//       });
+//       Yield.create({
+//         userId: userId,
+//         slotId: slotcreations._id,
+//         no_ofSlot: slotcreations.no_ofSlot,
+//         status: slotcreations.status,
+//       });
+//     }
+//   }
+//   return { messages: "Slot Created..." };
+// };
 
 const getUsersList = async (req) => {
   let userId = req.userId;
@@ -492,6 +493,11 @@ const getTopupDetails = async (req) => {
   ]);
   return values[0];
 };
+
+const activateClub = async (req) => {
+  let userId = req.userId
+  
+}
 
 module.exports = {
   createUser,

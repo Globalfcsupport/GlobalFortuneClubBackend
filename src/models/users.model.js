@@ -31,6 +31,18 @@ const UsersSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    myWallet: {
+      type: Number,
+      default: 0,
+    },
+    crowdStock: {
+      type: Number,
+      default: 0,
+    },
+    reserveMywallet: {
+      type: Number,
+      default: 0,
+    },
     uplineId: {
       type: String,
       required: true,
@@ -41,6 +53,10 @@ const UsersSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+    },
+    started:{
+      type:Boolean,
+      default:false
     },
   },
   { timestamps: true }
