@@ -148,26 +148,25 @@ const getPaymentNotification = async (req) => {
         new: true,
       }
     );
-    if(res.status == "Paid"){
+    if (res.status == "Paid") {
       let updated = await User.findOneAndUpdate(
         { email: req.body.email },
         { $inc: { myWallet: res.amount } },
         { new: true }
       );
-      console.log(updated,"If");
-
+      console.log(updated, "If");
     }
-   
+
     console.log(updated);
   } else {
     res = await Payment.create(req.body);
-    if(res.status == "Paid"){
+    if (res.status == "Paid") {
       let updated = await User.findOneAndUpdate(
         { email: req.body.email },
         { $inc: { myWallet: res.amount } },
         { new: true }
       );
-      console.log(updated,"Else");
+      console.log(updated, "Else");
     }
     return findByOrderId;
   }
@@ -514,28 +513,54 @@ const getTopupDetails = async (req) => {
 
 const activateClub = async (req) => {
   let userId = req.userId;
-  let findUserbyId = await User.findById(userId);
-  if (!findUserbyId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
-  } else if (findUserbyId.amount < 100) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
+  let slots = await Slot.find().count();
+  if (slots == 0) {
+    let findUserbyId = await User.findById(userId);
+    if (!findUserbyId) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
+    } else if (findUserbyId.amount < 100) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
+    }
+    findUserbyId = await User.findByIdAndUpdate(
+      { _id: userId },
+      { started: true, $inc: { myWallet: -100 } },
+      { new: true }
+    );
+    let createSlot = await Slot.create({ userId: userId, status: "Activated" });
+    let createYield = await Yield.create({
+      userId: userId,
+      status: "Activated",
+      slotId: createSlot._id,
+      totalYield: 200,
+      currentYield: 0,
+      crowdStock: 0,
+    });
+    AdminYield.create({ Yield: 100 });
+    return createYield;
+  } else {
+    let findUserbyId = await User.findById(userId);
+    if (!findUserbyId) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
+    } else if (findUserbyId.amount < 100) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
+    }
+    findUserbyId = await User.findByIdAndUpdate(
+      { _id: userId },
+      { started: true, $inc: { myWallet: -100 } },
+      { new: true }
+    );
+    let createSlot = await Slot.create({ userId: userId, status: "Activated" });
+    let createYield = await Yield.create({
+      userId: userId,
+      status: "Activated",
+      slotId: createSlot._id,
+      totalYield: 200,
+      currentYield: 0,
+      crowdStock: 0,
+    });
+    SpliteYield(userId);
+    return createYield;
   }
-  findUserbyId = await User.findByIdAndUpdate(
-    { _id: userId },
-    { started: true ,$inc:{myWallet:-100}},
-    { new: true }
-  );
-  let createSlot = await Slot.create({ userId: userId, status: "Activated" });
-  let createYield = await Yield.create({
-    userId: userId,
-    status: "Activated",
-    slotId: createSlot._id,
-    totalYield: 200,
-    currentYield: 0,
-    crowdStock: 0,
-  });
-  SpliteYield(userId);
-  return createYield;
 };
 
 module.exports = {
