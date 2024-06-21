@@ -4,6 +4,7 @@ const {
   Yield,
   AdminYield,
   Yeild_history,
+  AdminWallet,
 } = require("../models/payment.history");
 const { Setting } = require("../models/admin.model");
 const User = require("../models/users.model");
