@@ -58,6 +58,10 @@ const UsersSchema = new mongoose.Schema(
       type:Boolean,
       default:false
     },
+    adminWallet:{
+      type:Number,
+      default:0
+    }
   },
   { timestamps: true }
 );

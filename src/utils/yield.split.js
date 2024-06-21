@@ -4,6 +4,7 @@ const {
   Yield,
   AdminYield,
   Yeild_history,
+  AdminWallet,
 } = require("../models/payment.history");
 const ApiError = require("./ApiError");
 const { Setting } = require('../models/admin.model');
@@ -35,13 +36,16 @@ const SpliteYield = async (userId) => {
         findLOY.Yield = rem.toFixed(4);
         console.log(findLOY);
         await findLOY.save();
-
+        let set = await Setting.findOne().sort({createdAt:-1})
         element.crowdStock = staticAmount.toFixed(4);
         element.currentYield = staticAmount.toFixed(4);
         element.status = "Completed";
         await element.save();
         console.log(element);
-
+        let amount = 200;
+        let percentage = set.platFormFee
+        let val = amount * (percentage / 100);
+        await AdminWallet.create({slotId:element.slotId, adminWallet:val})
         await Slot.findByIdAndUpdate(element.slotId, { status: "Completed" }, { new: true });
         await Yeild_history.create({ userId: element.userId, slotId: element.slotId, currentYield: splitAmount.toFixed(4) });
       } else {

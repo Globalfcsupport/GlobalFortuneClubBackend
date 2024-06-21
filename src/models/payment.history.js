@@ -218,10 +218,34 @@ const yieldHistorySchema = new mongoose.Schema(
 
 const Yeild_history = mongoose.model("yeildhistories", yieldHistorySchema);
 
+const AdminWalletSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: String,
+      default: v4,
+    },
+    adminWallet: {
+      type: Number,
+      default: 0,
+    },
+    slotId: {
+      type: String,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const AdminWallet = mongoose.model("adminwallet", AdminWalletSchema);
+
 module.exports = {
   Payment,
   Slot,
   Yield,
   AdminYield,
   Yeild_history,
+  AdminWallet,
 };

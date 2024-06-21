@@ -8,7 +8,7 @@ const {
 const { Setting } = require("../models/admin.model");
 const User = require("../models/users.model");
 
-const AutoActivateSlot = async () => {
+const AutoActivateSlot = async () => { 
   let pendingSlots = await User.find({ role: { $ne: "admin" } });
   let findSetting = await Setting.findOne().sort({ createdAt: -1 });
   if(pendingSlots.length>0){
@@ -44,10 +44,14 @@ const AutoActivateSlot = async () => {
                   findLOY.Yield = rem.toFixed(4);
                   console.log(findLOY);
                   await findLOY.save();
-          
                   e.crowdStock = staticAmount.toFixed(4);
                   e.currentYield = staticAmount.toFixed(4);
                   e.status = "Completed";
+                  let set = await Setting.findOne().sort({createdAt:-1})
+                  let amount = 200;
+                  let percentage = set.platFormFee
+                  let val = amount * (percentage / 100);
+                  await AdminWallet.create({slotId:element.slotId, adminWallet:val})
                   await e.save();
                   console.log(e);
                   await Slot.findByIdAndUpdate(e.slotId, { status: "Completed" }, { new: true });
@@ -88,6 +92,7 @@ const AutoActivateSlot = async () => {
                   { new: true }
                 );
                 let createSlot = await Slot.create({ userId: element._id, status: "Activated" });
+                console.log(createSlot, "createSlot");
                 await Yield.create({
                   userId: element._id,
                   status: "Activated",
@@ -115,6 +120,11 @@ const AutoActivateSlot = async () => {
                     let rem = YIELD - 200;
                     findLOY.Yield = rem.toFixed(4);
                     console.log(findLOY);
+                    let set = await Setting.findOne().sort({createdAt:-1})
+                    let amount = 200;
+                    let percentage = set.platFormFee
+                    let val = amount * (percentage / 100);
+                    await AdminWallet.create({slotId:element.slotId, adminWallet:val})
                     await findLOY.save();
                     e.crowdStock = staticAmount.toFixed(4);
                     e.currentYield = staticAmount.toFixed(4);

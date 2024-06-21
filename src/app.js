@@ -60,11 +60,26 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("transferToToom",async (data) => {
+    console.log(data, "room chat");
+    // await Chat.findByIdAndUpdate({_id:data.roomId}, {$push: {messages:{msg:data.message, senderId:data.senderId, receiverId:data.receiverId}}}, {new:true})
+    io.to(data.roomId).emit('Trnsaction', {
+      id: socket.id,
+      message: data.money
+    });
+  });
+
   // Handle sending a private message
   socket.on("sendMessage", ({ senderId, receiverId, message }) => {
     console.log("senderId", senderId, "msg", message);
     io.to(receiverId).emit("newMessage", { senderId, message });
   });
+
+  socket.on("sendMoney", ({senderId, receiverId, internalTransfer, money})=>{
+    console.log("Money Transfer",senderId, receiverId, internalTransfer, money );
+
+  })
+
 });
 
 cron.schedule('* * * * *', () => {
