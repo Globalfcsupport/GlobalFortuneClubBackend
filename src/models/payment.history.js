@@ -99,6 +99,9 @@ const slotSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    refId:{
+      type:String,
+    }
   },
   { timestamps: true }
 );
@@ -145,6 +148,9 @@ const yieldSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    refId:{
+      type:String,
+    }
   },
   { timestamps: true }
 );
