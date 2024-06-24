@@ -45,9 +45,11 @@ const SpliteYield = async (userId) => {
         let amount = 200;
         let percentage = set.platFormFee
         let val = amount * (percentage / 100);
-        await AdminWallet.create({slotId:element.slotId, adminWallet:val})
+        IOIOIOIO = await AdminWallet.create({slotId:element.slotId, adminWallet:val})
+       console.log(IOIOIOIO,"Start IOIOIOIO");
         await Slot.findByIdAndUpdate(element.slotId, { status: "Completed" }, { new: true });
-        await Yeild_history.create({ userId: element.userId, slotId: element.slotId, currentYield: splitAmount.toFixed(4) });
+       let huhu =  await Yeild_history.create({ userId: element.userId, slotId: element.slotId, currentYield: splitAmount.toFixed(4) });
+       console.log(huhu,"Start HUHUHU");
       } else {
         element = await Yield.findByIdAndUpdate(
           element._id,

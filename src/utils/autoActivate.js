@@ -279,15 +279,16 @@ const AutoActivateSlot = async () => {
         let findSlot = await Slot.find({createdAt:{$gt:LatestActivatedSlotByUSer.createdAt}});
         let spacerFullFIll = findSlot.length >=settings.Sapcer
         let reserveMyWallet = element.reserveMywallet;
-        let myWallet = element.myWallet
+        let mywallet = element.myWallet
         let crowdStock = element.crowdStock
-        let totalwalletAndCrowdStock = myWallet + crowdStock
-        console.log(myWallet,"lklk");
+        console.log(element.myWallet,"kokoko");
+        let totalwalletAndCrowdStock = mywallet + crowdStock
+        console.log(mywallet,"lklk");
         console.log(spacerFullFIll,totalwalletAndCrowdStock >= reserveMyWallet+100, "Check sapcer" );
         if(spacerFullFIll && totalwalletAndCrowdStock >= reserveMyWallet+100 ){
-          if(crowdStock >=90 && myWallet >=10){
+          if(crowdStock >=90 && mywallet >=10){
             element.crowdStock = element.crowdStock - crowdStock;
-            element.myWallet = element.myWallet - myWallet;
+            element.myWallet = element.myWallet - mywallet;
             element.save()
             console.log(element, "IF Ele");
             let adminWallet = await AdminYield.findOne().sort({createdAt:-1});
@@ -315,7 +316,8 @@ const AutoActivateSlot = async () => {
                 slot.status = "Completed";
                 await Slot.findByIdAndUpdate({_id:slot.slotId}, { status:"Completed"}, {new:true})
                 let PlatformFee = (200 * settings.platFormFee) / 100;
-                await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+               let oioi =  await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+               console.log(oioi, "updates admin");
                 slot.save();
                 let rem = slot.currentYield - 200;
                 await Yeild_history.create({slotId:slot.slotId, userId:slot.userId,currentYield: -rem });
@@ -327,7 +329,8 @@ const AutoActivateSlot = async () => {
                 slot.status = "Completed";
                 await Slot.findByIdAndUpdate({_id:slot.slotId}, { status:"Completed"}, {new:true})
                 let PlatformFee = (200 * settings.platFormFee) / 100;
-                await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+               let LPLP =  await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+               console.log(LPLP,"UPDARE");
               }
             }
           }else{
@@ -362,7 +365,8 @@ const AutoActivateSlot = async () => {
                 slot.status = "Completed";
                 await Slot.findByIdAndUpdate({_id:slot.slotId}, { status:"Completed"}, {new:true})
                 let PlatformFee = (200 * settings.platFormFee) / 100;
-                await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+                let elup = await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+                console.log(elup, "else update IF");
                 slot.save();
                 let rem = slot.currentYield - 200;
                 await Yeild_history.create({slotId:slot.slotId, userId:slot.userId,currentYield: -rem });
@@ -374,7 +378,8 @@ const AutoActivateSlot = async () => {
                 slot.status = "Completed";
                 await Slot.findByIdAndUpdate({_id:slot.slotId}, { status:"Completed"}, {new:true})
                 let PlatformFee = (200 * settings.platFormFee) / 100;
-                await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+               let PLPL =  await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+               console.log(PLPL, "PLPLPLPLPLPL Else Else");
               }
             }
           }

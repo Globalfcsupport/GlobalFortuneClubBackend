@@ -148,14 +148,14 @@ const getPaymentNotification = async (req) => {
         new: true,
       }
     );
-    // if (res.status == "Paid") {
-    //   let updated = await User.findOneAndUpdate(
-    //     { email: req.body.email },
-    //     { $inc: { myWallet: res.amount } },
-    //     { new: true }
-    //   );
-    //   console.log(updated, "If");
-    // }
+    if (res.status == "Paid") {
+      let updated = await User.findOneAndUpdate(
+        { email: req.body.email },
+        { $inc: { myWallet: res.amount } },
+        { new: true }
+      );
+      console.log(updated, "If");
+    }
 
     console.log(updated);
   } else {
