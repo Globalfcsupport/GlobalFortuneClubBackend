@@ -273,6 +273,7 @@ const AutoActivateSlot = async () => {
       const element = startedUsers[index];
       // find Users Slot By User
       let LatestActivatedSlotByUSer = await Slot.findOne({userId:element._id}).sort({createdAt:-1})
+      // console.log(LatestActivatedSlotByUSer);
       if(LatestActivatedSlotByUSer){
         // find whether the recent slot has fulfilled the spacer 
         let findSlot = await Slot.find({createdAt:{$gt:LatestActivatedSlotByUSer.createdAt}});
@@ -281,12 +282,14 @@ const AutoActivateSlot = async () => {
         let myWallet = element.myWallet
         let crowdStock = element.crowdStock
         let totalwalletAndCrowdStock = myWallet + crowdStock
-
+        console.log(myWallet,"lklk");
+        console.log(spacerFullFIll,totalwalletAndCrowdStock >= reserveMyWallet+100, "Check sapcer" );
         if(spacerFullFIll && totalwalletAndCrowdStock >= reserveMyWallet+100 ){
           if(crowdStock >=90 && myWallet >=10){
             element.crowdStock = element.crowdStock - crowdStock;
             element.myWallet = element.myWallet - myWallet;
             element.save()
+            console.log(element, "IF Ele");
             let adminWallet = await AdminYield.findOne().sort({createdAt:-1});
             let adminYield = adminWallet.Yield ?adminWallet.Yield:0;
             let Yields = adminYield + 100;
@@ -327,11 +330,13 @@ const AutoActivateSlot = async () => {
                 await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
               }
             }
-          }else {
+          }else{
             let totalCrowdStock = 100 - crowdStock;
+            console.log(totalCrowdStock, "Total Crowd Stack Else");
             element.crowdStock = 0;
             element.myWallet = totalCrowdStock;
             element.save()
+            console.log(element,"ASDASD");
             let adminWallet = await AdminYield.findOne().sort({createdAt:-1});
             let adminYield = adminWallet.Yield ?adminWallet.Yield:0;
             let Yields = adminYield + 100;
