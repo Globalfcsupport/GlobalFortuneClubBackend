@@ -480,13 +480,7 @@ const getUserDetails_Dashboard = async (req) => {
         activatedTotal: { $ifNull: ["$mywallet.activatedTotal", 0] },
         completedTotal: { $ifNull: ["$mywallet.completedTotal", 0] },
         totalCryptoTopup: { $ifNull: ["$Payment.total", 0] },
-        started: {
-          $cond: {
-            if: { $gte: ["$mywallet.activatedTotal", 1] },
-            then: true,
-            else: false,
-          },
-        },
+        started: 1,
       },
     },
   ]);
