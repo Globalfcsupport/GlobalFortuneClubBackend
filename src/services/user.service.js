@@ -13,9 +13,11 @@ const {
   Yield,
   Slot,
   AdminYield,
+  AdminWallet,
 } = require("../models/payment.history");
 const { SpliteYield } = require("../utils/yield.split");
 const Chat = require("../models/chat.model");
+const { Setting } = require("../models/admin.model")
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -535,7 +537,12 @@ const activateClub = async (req) => {
       currentYield: 0,
       crowdStock: 0,
     });
-    AdminYield.create({ Yield: 100 });
+    await AdminYield.create({ Yield: 100 });
+    let findSetting =  await Setting.findOne().sort({createdAt:-1});
+    let refCOmmision = findSetting.ReferalCommisionSlot;
+    let findReference = await User.findOne({refId:findUserbyId.uplineId});
+    let PlatformFee = (100 * refCOmmision) / 100;
+    findReference = await User.findOneAndUpdate({_id:findReference._id}, {$inc:{adminWallet:PlatformFee}}, {new:true});
     return createYield;
   } else {
     let findUserbyId = await User.findById(userId);

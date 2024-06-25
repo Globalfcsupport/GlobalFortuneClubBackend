@@ -346,7 +346,13 @@ const AutoActivateSlot = async () => {
             let totalActivatedSlotCount = await Yield.find({status:"Activated"}).countDocuments();
             let totalActivatedSlot = await Yield.find({status:"Activated"});
             let splitYields = Yields / totalActivatedSlotCount;
-            let slotcreate = await Slot.create({status:"Activated", userId:element._id,refId:element.refId })
+            let slotcreate = await Slot.create({status:"Activated", userId:element._id,refId:element.refId });
+            let settingFind = await Setting.findOne().sort({createdAt:-1});
+            let findUserbyId = await User.findById(slotcreate.userId);
+            let refCommision = settingFind.ReferalCommisionSlot;
+            let findReference = await User.findOne({refId:findUserbyId.uplineId});
+            let PlatformFee = (100 * refCommision) / 100;
+            findReference = await User.findOneAndUpdate({_id:findReference._id}, {$inc:{adminWallet:PlatformFee}}, {new:true});
             await Yield.create({status:"Activated", userId:element._id,refId:element.refId, slotId:slotcreate._id,totalYield:200,currentYield:0,crowdStock:0,wallet:0 })
             adminWallet.Yield = 0;
             adminWallet.save();
