@@ -53,10 +53,12 @@ io.on("connection", (socket) => {
   // Handle sending a message to a room
   socket.on("messageToRoom",async (data) => {
     console.log(data, "room chat");
-    await Chat.findByIdAndUpdate({_id:data.roomId}, {$push: {messages:{msg:data.message, senderId:data.senderId, receiverId:data.receiverId}}}, {new:true})
+    await Chat.findByIdAndUpdate({_id:data.roomId}, {$push: {messages:{message:data.message, senderId:data.senderId, receiverId:data.receiverId}}}, {new:true})
     io.to(data.roomId).emit('message', {
       id: socket.id,
-      message: data.message
+      message: data.message,
+      receiverId:data.receiverId,
+      senderId:data.senderId
     });
   });
 
@@ -72,13 +74,30 @@ io.on("connection", (socket) => {
   // Handle sending a private message
   socket.on("sendMessage", ({ senderId, receiverId, message }) => {
     console.log("senderId", senderId, "msg", message);
-    io.to(receiverId).emit("newMessage", { senderId, message });
+    io.to(receiverId).emit("newMessage", { senderId, message,receiverId  });
   });
+// Assuming you have the necessary imports and server setup
 
-  socket.on("sendMoney", ({senderId, receiverId, internalTransfer, money})=>{
-    console.log("Money Transfer",senderId, receiverId, internalTransfer, money );
+socket.on("sendMoney", async (data) => {
+  console.log("Money Transfer", data);
+  await Chat.findByIdAndUpdate(
+    { _id: data.roomId },
+    {
+      $push: {
+        messages: {
+          message: `Transferred $${data.money} to ${data.receiverId}`,
+          payment: data.payment,
+          money: data.money,
+          senderId: data.senderId,
+          receiverId: data.receiverId
+        }
+      }
+    },
+    { new: true }
+  );
+  io.to(data.roomId).emit("Trnsaction", { data });
+});
 
-  })
 
 });
 
