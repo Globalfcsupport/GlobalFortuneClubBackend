@@ -140,7 +140,7 @@ const payments = async (req) => {
 
 const getPaymentNotification = async (req) => {
   let res;
-  let findByOrderId = await Payment.findOne({ orderId: req.body.orderId, status:{$ne:"Paiid"} });
+  let findByOrderId = await Payment.findOne({ orderId: req.body.orderId, status:{$ne:"Paid"} });
   console.log(req.body.email);
   if (findByOrderId) {
     res = await Payment.findByIdAndUpdate(
