@@ -337,7 +337,7 @@ const AutoActivateSlot = async () => {
             let totalCrowdStock = 100 - crowdStock;
             console.log(totalCrowdStock, "Total Crowd Stack Else");
             element.crowdStock = 0;
-            element.myWallet = totalCrowdStock;
+            element.myWallet = element.myWallet - totalCrowdStock;
             element.save()
             console.log(element,"ASDASD");
             let adminWallet = await AdminYield.findOne().sort({createdAt:-1});
