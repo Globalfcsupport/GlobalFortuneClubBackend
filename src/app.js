@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
 
 let socketPort = process.env.SOCKET_PORT || 5001;
 
-const socketServer = http.createServer();
+const socketServer = http.createServer(app);
 
 const sessions = {};
 
@@ -39,6 +39,7 @@ const io = socketIo(socketServer, {
     origin: "*",
     methods: ["GET", "POST"],
   },
+  path:"/ws"
 });
 const connectedUsers = {};
 io.on("connection", (socket) => {
