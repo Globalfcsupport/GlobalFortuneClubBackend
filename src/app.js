@@ -13,6 +13,7 @@ const { AutoActivateSlot } = require("./utils/autoActivate");
 const socketIo = require("socket.io");
 const http = require("http");
 const Chat = require("./models/chat.model");
+const { InternalTransaction } = require("./models/refIncome.model");
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -81,7 +82,7 @@ io.on("connection", (socket) => {
 
 socket.on("sendMoney", async (data) => {
   console.log("Money Transfer", data);
-  await Chat.findByIdAndUpdate(
+   Chat.findByIdAndUpdate(
     { _id: data.roomId },
     {
       $push: {
@@ -96,6 +97,7 @@ socket.on("sendMoney", async (data) => {
     },
     { new: true }
   );
+  InternalTransaction.create({senderId: data.senderId, amount:data.money, userId:data.receiverId})
   io.to(data.roomId).emit("Trnsaction", { data });
 });
 

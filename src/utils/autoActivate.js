@@ -8,6 +8,7 @@ const {
 } = require("../models/payment.history");
 const { Setting } = require("../models/admin.model");
 const User = require("../models/users.model");
+const { RefferalIncome } = require("../models/refIncome.model");
 
 const AutoActivateSlot = async () => {
   // let pendingSlots = await User.find({ role: { $ne: "admin" } });
@@ -299,6 +300,11 @@ const AutoActivateSlot = async () => {
             let splitYields = Yields / totalActivatedSlotCount;
             let slotcreate = await Slot.create({status:"Activated", userId:element._id,refId:element.refId })
             await Yield.create({status:"Activated", userId:element._id,refId:element.refId, slotId:slotcreate._id,totalYield:200,currentYield:0,crowdStock:0,wallet:0 })
+            let findUserbyId = await User.findById(slotcreate.userId);
+            let findReferenc = await User.findOne({refId:findUserbyId.uplineId});
+            let PlatformFee = (100 * refCommision) / 100;
+            findReferenc = await User.findOneAndUpdate({_id:findReferenc._id}, {$inc:{adminWallet:PlatformFee}}, {new:true});
+            RefferalIncome.create({userId:findReferenc._id, amount:PlatformFee})
             adminWallet.Yield = 0;
             adminWallet.save();
             for (let slots = 0; slots < totalActivatedSlot.length; slots++) {
@@ -353,6 +359,7 @@ const AutoActivateSlot = async () => {
             let findReference = await User.findOne({refId:findUserbyId.uplineId});
             let PlatformFee = (100 * refCommision) / 100;
             findReference = await User.findOneAndUpdate({_id:findReference._id}, {$inc:{adminWallet:PlatformFee}}, {new:true});
+            RefferalIncome.create({userId:findReference._id, amount:PlatformFee})
             await Yield.create({status:"Activated", userId:element._id,refId:element.refId, slotId:slotcreate._id,totalYield:200,currentYield:0,crowdStock:0,wallet:0 })
             adminWallet.Yield = 0;
             adminWallet.save();

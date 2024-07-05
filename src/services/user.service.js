@@ -582,6 +582,8 @@ const activateClub = async (req) => {
       { $inc: { adminWallet: PlatformFee } },
       { new: true }
     );
+    RefferalIncome.create({ userId: findReference._id, amount: PlatformFee });
+
     return createYield;
   } else {
     let findUserbyId = await User.findById(userId);
@@ -604,6 +606,14 @@ const activateClub = async (req) => {
       currentYield: 0,
       crowdStock: 0,
     });
+    let findReference = await User.findOne({ refId: findUserbyId.uplineId });
+    let PlatformFee = (100 * refCOmmision) / 100;
+    findReference = await User.findOneAndUpdate(
+      { _id: findReference._id },
+      { $inc: { adminWallet: PlatformFee } },
+      { new: true }
+    );
+    RefferalIncome.create({ userId: findReference._id, amount: PlatformFee });
     SpliteYield(userId);
     return createYield;
   }
