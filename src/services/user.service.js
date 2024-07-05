@@ -17,7 +17,8 @@ const {
 } = require("../models/payment.history");
 const { SpliteYield } = require("../utils/yield.split");
 const Chat = require("../models/chat.model");
-const { Setting } = require("../models/admin.model")
+const { Setting } = require("../models/admin.model");
+const moment = require("moment");
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -115,7 +116,7 @@ const payments = async (req) => {
         currency: "USD",
         lifeTime: oxapayLifetime,
         callbackUrl: `${backendUrl}/v1/user/payment/notification?apiKey=${apiKey}`,
-        returnUrl: `http://localhost:5000/app/DashBoard`,
+        returnUrl: `http://user-react.globalfc.app/app/DashBoard`,
         orderId: orderId,
         email,
         userId,
@@ -140,7 +141,10 @@ const payments = async (req) => {
 
 const getPaymentNotification = async (req) => {
   let res;
-  let findByOrderId = await Payment.findOne({ orderId: req.body.orderId, status:{$ne:"Paid"} });
+  let findByOrderId = await Payment.findOne({
+    orderId: req.body.orderId,
+    status: { $ne: "Paid" },
+  });
   console.log(req.body.email);
   if (findByOrderId) {
     res = await Payment.findByIdAndUpdate(
@@ -402,6 +406,8 @@ const getUsersByRefId = async (req) => {
 
 const getUserDetails_Dashboard = async (req) => {
   let userId = req.userId;
+  const today = moment().startOf("day").toDate();
+  const tomorrow = moment().add(1, "days").startOf("day").toDate();
   let values = await User.aggregate([
     {
       $match: { _id: userId },
@@ -466,6 +472,40 @@ const getUserDetails_Dashboard = async (req) => {
       },
     },
     {
+      $lookup: {
+        from: "yeildhistories",
+        let: { userId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$userId", "$$userId"] },
+                  { $gte: ["$createdAt", today] },
+                  { $lt: ["$createdAt", tomorrow] },
+                ],
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              todayYield: {
+                $sum: "$currentYield",
+              },
+            },
+          },
+        ],
+        as: "todayYieldData",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$todayYieldData",
+      },
+    },
+    {
       $project: {
         _id: 1,
         role: 1,
@@ -475,6 +515,7 @@ const getUserDetails_Dashboard = async (req) => {
         refId: 1,
         uplineId: 1,
         wallet: { $ifNull: ["$mywallet.walletTotal", 0] },
+        todayYeild: { $ifNull: ["$todayYieldData.todayYield", 0] },
         crowd: { $ifNull: ["$mywallet.croudTotal", 0] },
         Yield: { $ifNull: ["$mywallet.yieldTotal", 0] },
         activatedTotal: { $ifNull: ["$mywallet.activatedTotal", 0] },
@@ -532,11 +573,15 @@ const activateClub = async (req) => {
       crowdStock: 0,
     });
     await AdminYield.create({ Yield: 100 });
-    let findSetting =  await Setting.findOne().sort({createdAt:-1});
+    let findSetting = await Setting.findOne().sort({ createdAt: -1 });
     let refCOmmision = findSetting.ReferalCommisionSlot;
-    let findReference = await User.findOne({refId:findUserbyId.uplineId});
+    let findReference = await User.findOne({ refId: findUserbyId.uplineId });
     let PlatformFee = (100 * refCOmmision) / 100;
-    findReference = await User.findOneAndUpdate({_id:findReference._id}, {$inc:{adminWallet:PlatformFee}}, {new:true});
+    findReference = await User.findOneAndUpdate(
+      { _id: findReference._id },
+      { $inc: { adminWallet: PlatformFee } },
+      { new: true }
+    );
     return createYield;
   } else {
     let findUserbyId = await User.findById(userId);
