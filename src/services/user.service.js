@@ -558,6 +558,9 @@ const activateClub = async (req) => {
     } else if (findUserbyId.amount < 100) {
       throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
     }
+    if (findUserbyId.amount < 100) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
+    }
     findUserbyId = await User.findByIdAndUpdate(
       { _id: userId },
       { started: true, $inc: { myWallet: -100 } },
