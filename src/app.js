@@ -13,7 +13,7 @@ const { AutoActivateSlot } = require("./utils/autoActivate");
 const socketIo = require("socket.io");
 const http = require("http");
 const Chat = require("./models/chat.model");
-const { InternalTransaction } = require("./models/refIncome.model");
+const { InternalTransaction,  } = require("./models/refIncome.model");
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
   // Handle sending a message to a room
   socket.on("messageToRoom",async (data) => {
     console.log(data, "room chat");
-    await Chat.findByIdAndUpdate({_id:data.roomId}, {$push: {messages:{message:data.message, senderId:data.senderId, receiverId:data.receiverId}}}, {new:true})
+     Chat.findByIdAndUpdate({_id:data.roomId}, {$push: {messages:{message:data.message, senderId:data.senderId, receiverId:data.receiverId}}}, {new:true})
     io.to(data.roomId).emit('message', {
       id: socket.id,
       message: data.message,
