@@ -3,6 +3,9 @@ const router = express.Router();
 const UserController = require("../controller/user.controller");
 const { VerifyAuthToken } = require("../middlewares/jwt");
 const { apiKeyAuthorization } = require("../middlewares/apikey.auth.js");
+const User = require("../models/users.model.js");
+const upload = require("../middlewares/profileUpload.js");
+
 router.route("/").post(UserController.createUser);
 router.route("/payment").post(VerifyAuthToken, UserController.payments);
 router
@@ -23,4 +26,6 @@ router.route("/get/fc/slots").get(VerifyAuthToken, UserController.getFcSlots)
 router.route("/get/users/byrefid").get(VerifyAuthToken, UserController.getUsersByRefId);
 router.route("/get/user/details/dashboard").get(VerifyAuthToken, UserController.getUserDetails_Dashboard);
 router.route("/get/topup/details").get(VerifyAuthToken, UserController.getTopupDetails);
+router.route("/profile/image/upload").post(upload.single('image'), VerifyAuthToken,UserController.uploadProfileImage);
+router.route("/update/userprofile").post(VerifyAuthToken,UserController.updateUserProfile )
 module.exports = router;

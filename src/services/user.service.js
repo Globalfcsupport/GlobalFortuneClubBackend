@@ -622,6 +622,32 @@ const activateClub = async (req) => {
   }
 };
 
+const uploadProfileImage = async (req) => {
+  let userId = req.userId;
+  let findUserbyId = await User.findById(userId);
+  if (!findUserbyId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
+  }
+  findUserbyId = await User.findByIdAndUpdate(
+    { _id: userId },
+    { image: req.file.filename },
+    { new: true }
+  );
+  return findUserbyId;
+};
+
+const updateUserProfile = async (req) => {
+  let userId = req.userId;
+  let findUserbyId = await User.findById(userId);
+  if (!findUserbyId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
+  }
+  findUserbyId = await User.findByIdAndUpdate({ _id: userId }, req.body, {
+    new: true,
+  });
+  return findUserbyId;
+};
+
 module.exports = {
   createUser,
   LoginWithEmailPassword,
@@ -638,4 +664,6 @@ module.exports = {
   getUsersByRefId,
   getUserDetails_Dashboard,
   getTopupDetails,
+  uploadProfileImage,
+  updateUserProfile,
 };

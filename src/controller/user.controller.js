@@ -71,6 +71,16 @@ const getTopupDetails = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const uploadProfileImage = catchAsync(async (req, res) => {
+  const data = await UserService.uploadProfileImage(req);
+  res.send(data);
+});
+
+const updateUserProfile = catchAsync(async (req, res) => {
+  const data = await UserService.updateUserProfile(req);
+  res.send(data);
+});
+
 module.exports = {
   createUser,
   payments,
@@ -86,4 +96,6 @@ module.exports = {
   getUsersByRefId,
   getUserDetails_Dashboard,
   getTopupDetails,
+  uploadProfileImage,
+  updateUserProfile,
 };

@@ -54,14 +54,25 @@ const UsersSchema = new mongoose.Schema(
     password: {
       type: String,
     },
-    started:{
-      type:Boolean,
-      default:false
+    started: {
+      type: Boolean,
+      default: false,
     },
-    adminWallet:{
-      type:Number,
-      default:0
-    }
+    adminWallet: {
+      type: Number,
+      default: 0,
+    },
+    image: {
+      type: String,
+    },
+    USDTAddress: {
+      type: String,
+      default: "",
+    },
+    USDTNetwork: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

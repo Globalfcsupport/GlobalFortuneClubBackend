@@ -18,6 +18,7 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+const path = require('path');
 
 app.use(morgan.successHandler);
 app.use(morgan.errorHandler);
@@ -29,11 +30,13 @@ app.get("/", (req, res) => {
   res.status(200).send({ message: "GFC API WORKING........" });
 });
 
+
 let socketPort = process.env.SOCKET_PORT || 5001;
 
 const socketServer = http.createServer(app);
 
 const sessions = {};
+app.use(express.static(path.join(__dirname, '../public')));
 
 const io = socketIo(socketServer, {
   cors: {
