@@ -114,10 +114,16 @@ const TrnsactionHistories = async (req) => {
   return values;
 };
 
+const getSetting = async (req) => {
+  let values = await Setting.findOne().sort({ createdAt: -1 });
+  return values;
+};
+
 module.exports = {
   createSetting,
   updateSetting,
   getAppReport_Dashboard,
   getUserList,
   TrnsactionHistories,
+  getSetting,
 };

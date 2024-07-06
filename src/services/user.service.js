@@ -116,7 +116,9 @@ const payments = async (req) => {
         currency: "USD",
         lifeTime: oxapayLifetime,
         callbackUrl: `${backendUrl}/v1/user/payment/notification?apiKey=${apiKey}`,
-        returnUrl: `http://user-react.globalfc.app/app/DashBoard`,
+        // returnUrl: `https://user-react.globalfc.app/app/DashBoard`,
+        returnUrl: `http://localhost:5000/app/DashBoard`,
+
         orderId: orderId,
         email,
         userId,
@@ -352,6 +354,7 @@ const getUsersByRefId = async (req) => {
   console.log(refId, "OPOP");
   const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
   const todayEnd = new Date(new Date().setHours(24, 0, 0, 0));
+
   let values = await User.aggregate([
     {
       $match: {
@@ -369,22 +372,11 @@ const getUsersByRefId = async (req) => {
               },
             },
           },
-          {
-            $group: {
-              _id: null,
-              count: { $sum: 1 },
-              documents: { $push: "$$ROOT" },
-            },
-          },
+          { $count: "count" },
         ],
         overallData: [
-          {
-            $group: {
-              _id: null,
-              count: { $sum: 1 },
-              documents: { $push: "$$ROOT" },
-            },
-          },
+          { $count: "count" },
+          { $addFields: { documents: "$$ROOT" } },
         ],
       },
     },
@@ -392,12 +384,7 @@ const getUsersByRefId = async (req) => {
       $project: {
         todayCount: { $arrayElemAt: ["$todayData.count", 0] },
         overallCount: { $arrayElemAt: ["$overallData.count", 0] },
-        documents: {
-          $concatArrays: [
-            { $arrayElemAt: ["$todayData.documents", 0] },
-            { $arrayElemAt: ["$overallData.documents", 0] },
-          ],
-        },
+        overallData: "$overallData.documents",
       },
     },
   ]);
@@ -555,10 +542,10 @@ const activateClub = async (req) => {
     let findUserbyId = await User.findById(userId);
     if (!findUserbyId) {
       throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
-    } else if (findUserbyId.amount < 100) {
+    } else if (findUserbyId.myWallet < 100) {
       throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
     }
-    if (findUserbyId.amount < 100) {
+    if (findUserbyId.myWallet < 100) {
       throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
     }
     findUserbyId = await User.findByIdAndUpdate(
@@ -592,7 +579,8 @@ const activateClub = async (req) => {
     let findUserbyId = await User.findById(userId);
     if (!findUserbyId) {
       throw new ApiError(httpStatus.BAD_REQUEST, "User Not Found");
-    } else if (findUserbyId.amount < 100) {
+    }
+    if (findUserbyId.myWallet < 100) {
       throw new ApiError(httpStatus.BAD_REQUEST, "Insufficient Balance");
     }
     findUserbyId = await User.findByIdAndUpdate(
@@ -610,6 +598,8 @@ const activateClub = async (req) => {
       crowdStock: 0,
     });
     let findReference = await User.findOne({ refId: findUserbyId.uplineId });
+    let findSetting = await Setting.findOne().sort({ createdAt: -1 });
+    let refCOmmision = findSetting.ReferalCommisionSlot;
     let PlatformFee = (100 * refCOmmision) / 100;
     findReference = await User.findOneAndUpdate(
       { _id: findReference._id },
@@ -648,6 +638,52 @@ const updateUserProfile = async (req) => {
   return findUserbyId;
 };
 
+const getUserListForDamin = async (req) => {
+  let userId = req.userId;
+  let values = await User.aggregate([
+    {
+      $match: {
+        role: { $ne: "admin" },
+      },
+    },
+    {
+      $lookup: {
+        from: "yields",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline: [
+          {
+            $group: { _id: null, total: { $sum: "$currentYield" } },
+          },
+        ],
+        as: "Yield",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$Yield",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        USDTAddress: 1,
+        USDTNetwork: 1,
+        totalYield: { $round: [{ $ifNull: ["$Yield.total", 0] }, 4] },
+        active: 1,
+        email: 1,
+        crowdStock: 1,
+        myWallet: { $round: ["$myWallet", 4] },
+        reserveMywallet: { $round: ["$reserveMywallet", 4] },
+        userName: 1,
+        uplineId: 1,
+      },
+    },
+  ]);
+  return values;
+};
+
 module.exports = {
   createUser,
   LoginWithEmailPassword,
@@ -666,4 +702,5 @@ module.exports = {
   getTopupDetails,
   uploadProfileImage,
   updateUserProfile,
+  getUserListForDamin,
 };

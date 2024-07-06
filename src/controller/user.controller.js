@@ -81,6 +81,11 @@ const updateUserProfile = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getUserListForDamin = catchAsync(async (req, res) => {
+  const data = await UserService.getUserListForDamin(req);
+  res.send(data);
+});
+
 module.exports = {
   createUser,
   payments,
@@ -98,4 +103,5 @@ module.exports = {
   getTopupDetails,
   uploadProfileImage,
   updateUserProfile,
+  getUserListForDamin,
 };

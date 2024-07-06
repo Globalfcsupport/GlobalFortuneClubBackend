@@ -26,10 +26,16 @@ const TrnsactionHistories = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getSetting = catchAsync(async (req, res) => {
+  const data = await AdminService.getSetting(req);
+  res.send(data);
+});
+
 module.exports = {
   createSetting,
   updateSetting,
   getAppReport_Dashboard,
   getUserList,
   TrnsactionHistories,
+  getSetting,
 };
