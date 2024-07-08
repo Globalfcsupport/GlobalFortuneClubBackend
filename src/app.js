@@ -114,6 +114,8 @@ socket.on("sendMoney", async (data) => {
   );
   InternalTransaction.create({senderId: data.senderId, amount:data.money, userId:data.receiverId})
   await User.findByIdAndUpdate(data.senderId, {$inc: {myWallet: -data.money}}, {new: true});
+  await User.findByIdAndUpdate(data.receiverId, {$inc: {myWallet: data.money}}, {new: true});
+
   io.to(data.roomId).emit("Trnsaction", { data });
 });
 
