@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 const path = require('path');
+const User = require("./models/users.model");
 
 app.use(morgan.successHandler);
 app.use(morgan.errorHandler);
@@ -101,6 +102,7 @@ socket.on("sendMoney", async (data) => {
     { new: true }
   );
   InternalTransaction.create({senderId: data.senderId, amount:data.money, userId:data.receiverId})
+  User.findByIdAndUpdate({_id:senderId}, {$inc:{myWallet:-data.money}},{new:true})
   io.to(data.roomId).emit("Trnsaction", { data });
 });
 

@@ -375,20 +375,44 @@ const getUsersByRefId = async (req) => {
           { $count: "count" },
         ],
         overallData: [
-          { $count: "count" },
-          { $addFields: { documents: "$$ROOT" } },
+          {
+            $group: {
+              _id: null,
+              documents: { $push: "$$ROOT" },
+              count: { $sum: 1 },
+            },
+          },
         ],
       },
     },
     {
       $project: {
-        todayCount: { $arrayElemAt: ["$todayData.count", 0] },
-        overallCount: { $arrayElemAt: ["$overallData.count", 0] },
-        overallData: "$overallData.documents",
+        todayCount: { $ifNull: [{ $arrayElemAt: ["$todayData.count", 0] }, 0] },
+        overallCount: {
+          $ifNull: [{ $arrayElemAt: ["$overallData.count", 0] }, 0],
+        },
+        overallData: { $arrayElemAt: ["$overallData.documents", 0] },
       },
     },
   ]);
-  return values;
+
+  let data;
+
+  if (values.length > 0) {
+    data = {
+      overallCount: values[0].overallCount,
+      todayCount: values[0].todayCount,
+      overallData: values[0].overallData,
+    };
+  } else {
+    data = {
+      overallCount: 0,
+      todayCount: 0,
+      overallData: [],
+    };
+  }
+
+  return data;
 };
 
 const getUserDetails_Dashboard = async (req) => {
