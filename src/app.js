@@ -86,8 +86,8 @@ io.on("connection", (socket) => {
 
 socket.on("sendMoney", async (data) => {
   console.log("Money Transfer", data);
-   Chat.findByIdAndUpdate(
-    { _id: data.roomId },
+  await Chat.findByIdAndUpdate(
+    data.roomId, 
     {
       $push: {
         messages: {
