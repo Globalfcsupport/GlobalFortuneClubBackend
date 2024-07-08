@@ -86,6 +86,11 @@ const getUserListForDamin = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const withDdrawRequest = catchAsync(async (req, res) => {
+  const data = await UserService.withDdrawRequest(req);
+  res.send(data);
+});
+
 module.exports = {
   createUser,
   payments,
@@ -104,4 +109,5 @@ module.exports = {
   uploadProfileImage,
   updateUserProfile,
   getUserListForDamin,
+  withDdrawRequest,
 };

@@ -28,5 +28,6 @@ router.route("/get/user/details/dashboard").get(VerifyAuthToken, UserController.
 router.route("/get/topup/details").get(VerifyAuthToken, UserController.getTopupDetails);
 router.route("/profile/image/upload").post(upload.single('image'), VerifyAuthToken,UserController.uploadProfileImage);
 router.route("/update/userprofile").post(VerifyAuthToken,UserController.updateUserProfile );
-router.route("/users/admin").get(VerifyAuthToken, UserController.getUserListForDamin)
+router.route("/users/admin").get(VerifyAuthToken, UserController.getUserListForDamin);
+router.route("/withdraw/request").post(VerifyAuthToken, UserController.withDdrawRequest);
 module.exports = router;

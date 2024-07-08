@@ -60,7 +60,32 @@ const SettingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const withDrawSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: String,
+      default: v4,
+    },
+    requestAmt: {
+      type: Number,
+    },
+    receivableAmt: {
+      type: Number,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+    userId: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
+
 const Setting = mongoose.model("settings", SettingSchema);
+const withDraw = mongoose.model("withdraw", withDrawSchema);
 module.exports = {
   Setting,
+  withDraw,
 };

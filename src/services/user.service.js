@@ -17,7 +17,7 @@ const {
 } = require("../models/payment.history");
 const { SpliteYield } = require("../utils/yield.split");
 const Chat = require("../models/chat.model");
-const { Setting } = require("../models/admin.model");
+const { Setting, withDraw } = require("../models/admin.model");
 const moment = require("moment");
 
 const createUser = async (req) => {
@@ -525,14 +525,20 @@ const getUserDetails_Dashboard = async (req) => {
         active: 1,
         refId: 1,
         uplineId: 1,
-        wallet: { $ifNull: ["$mywallet.walletTotal", 0] },
+        wallet: {
+          $add: [
+            { $ifNull: ["$mywallet.walletTotal", 0] },
+            { $ifNull: ["$myWallet", 0] },
+          ],
+        },
         todayYeild: { $ifNull: ["$todayYieldData.todayYield", 0] },
-        crowd: { $ifNull: ["$mywallet.croudTotal", 0] },
+        crowdStock:1,
         Yield: { $ifNull: ["$mywallet.yieldTotal", 0] },
         activatedTotal: { $ifNull: ["$mywallet.activatedTotal", 0] },
         completedTotal: { $ifNull: ["$mywallet.completedTotal", 0] },
         totalCryptoTopup: { $ifNull: ["$Payment.total", 0] },
         started: 1,
+        reserveMywallet:1,
       },
     },
   ]);
@@ -708,6 +714,17 @@ const getUserListForDamin = async (req) => {
   return values;
 };
 
+const withDdrawRequest = async (req) => {
+  let userId = req.userId;
+  let values = await withDraw.create({ ...req.body, ...{ userId: userId } });
+  await User.findByIdAndUpdate(
+    { _id: userId },
+    { $inc: { myWallet: -req.body.requestAmt } },
+    { new: true }
+  );
+  return values;
+};
+
 module.exports = {
   createUser,
   LoginWithEmailPassword,
@@ -727,4 +744,5 @@ module.exports = {
   uploadProfileImage,
   updateUserProfile,
   getUserListForDamin,
+  withDdrawRequest,
 };
