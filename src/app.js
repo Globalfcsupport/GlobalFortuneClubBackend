@@ -59,8 +59,19 @@ io.on("connection", (socket) => {
   // Handle sending a message to a room
   socket.on("messageToRoom",async (data) => {
     console.log(data, "room chat");
-     Chat.findByIdAndUpdate({_id:data.roomId}, {$push: {messages:{message:data.message, senderId:data.senderId, receiverId:data.receiverId}}}, {new:true})
-    io.to(data.roomId).emit('message', {
+    await Chat.findByIdAndUpdate(
+      data.roomId,
+      {
+        $push: {
+          messages: {
+            message: data.message,
+            senderId: data.senderId,
+            receiverId: data.receiverId
+          }
+        }
+      },
+      { new: true }
+    );    io.to(data.roomId).emit('message', {
       id: socket.id,
       message: data.message,
       receiverId:data.receiverId,
