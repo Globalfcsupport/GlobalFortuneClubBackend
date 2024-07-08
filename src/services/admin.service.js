@@ -3,6 +3,7 @@ const httpStatus = require("http-status");
 const { Setting } = require("../models/admin.model");
 const User = require("../models/users.model");
 const { AdminYield, Slot, Payment } = require("../models/payment.history");
+const { InternalTransaction } = require("../models/refIncome.model");
 
 const createSetting = async (req) => {
   let userId = req.userId;
@@ -110,8 +111,94 @@ const TrnsactionHistories = async (req) => {
         _id: { $ne: null },
       },
     },
+    {
+      $lookup: {
+        from: "users",
+        localField: "email",
+        foreignField: "email",
+        as: "User",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$User",
+      },
+    },
+    {
+      $addFields: {
+        timestampMillis: {
+          $multiply: ["$date", 1000],
+        },
+      },
+    },
+    {
+      $addFields: {
+        formattedDate: {
+          $dateToString: {
+            format: "%d/%m/%Y",
+            date: {
+              $toDate: "$timestampMillis",
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        status: 1,
+        amount: 1,
+        currency: 1,
+        email: 1,
+        date: "$formattedDate",
+        userName: "$User.userName",
+        userId: "$User.refId",
+      },
+    },
   ]);
-  return values;
+
+  const internalTransaction = await InternalTransaction.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "User",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$User",
+      },
+    },
+    {
+      $addFields: {
+        formattedDate: {
+          $dateToString: {
+            format: "%d/%m/%Y",
+            date: "$createdAt",
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        amount: 1,
+        status: "Paid",
+        // User: "$User",
+        email: "$User.email",
+        userName: "$User.userName",
+        userId: "$User.refId",
+        currency: "USD",
+        date: "$formattedDate",
+      },
+    },
+  ]);
+
+  return { Crypto: values, internalTransaction: internalTransaction, All:values.concat(internalTransaction) };
 };
 
 const getSetting = async (req) => {
