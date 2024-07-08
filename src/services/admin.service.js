@@ -2,7 +2,12 @@ const ApiError = require("../utils/ApiError");
 const httpStatus = require("http-status");
 const { Setting } = require("../models/admin.model");
 const User = require("../models/users.model");
-const { AdminYield, Slot, Payment } = require("../models/payment.history");
+const {
+  AdminYield,
+  Slot,
+  Payment,
+  Yield,
+} = require("../models/payment.history");
 const { InternalTransaction } = require("../models/refIncome.model");
 
 const createSetting = async (req) => {
@@ -198,12 +203,30 @@ const TrnsactionHistories = async (req) => {
     },
   ]);
 
-  return { Crypto: values, internalTransaction: internalTransaction, All:values.concat(internalTransaction) };
+  return {
+    Crypto: values,
+    internalTransaction: internalTransaction,
+    All: values.concat(internalTransaction),
+  };
 };
 
 const getSetting = async (req) => {
   let values = await Setting.findOne().sort({ createdAt: -1 });
   return values;
+};
+
+const getFcSlotsLog = async () => {
+  let values = await Yield.find();
+  const categorized = values.reduce((acc, obj) => {
+    const { status } = obj;
+    if (!acc[status]) {
+      acc[status] = [];
+    }
+    acc[status].push(obj);
+
+    return acc;
+  }, {});
+  return categorized;
 };
 
 module.exports = {
@@ -213,4 +236,5 @@ module.exports = {
   getUserList,
   TrnsactionHistories,
   getSetting,
+  getFcSlotsLog,
 };

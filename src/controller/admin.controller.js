@@ -31,6 +31,11 @@ const getSetting = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getFcSlotsLog = catchAsync(async(req,res)=>{
+  const data = await AdminService.getFcSlotsLog(req);
+  res.send(data)
+})
+
 module.exports = {
   createSetting,
   updateSetting,
@@ -38,4 +43,5 @@ module.exports = {
   getUserList,
   TrnsactionHistories,
   getSetting,
+  getFcSlotsLog
 };
