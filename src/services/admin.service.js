@@ -1,6 +1,6 @@
 const ApiError = require("../utils/ApiError");
 const httpStatus = require("http-status");
-const { Setting } = require("../models/admin.model");
+const { Setting, withDraw } = require("../models/admin.model");
 const User = require("../models/users.model");
 const {
   AdminYield,
@@ -229,6 +229,41 @@ const getFcSlotsLog = async () => {
   return categorized;
 };
 
+const getWidthdrawRequests = async () => {
+  let values = await withDraw.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "User",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$User",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        requestAmt: 1,
+        receivableAmt: 1,
+        active: 1,
+        userId: 1,
+        status: 1,
+        userName:"$User.userName",
+        email:"$User.email",
+        refId:"$User.refId",
+        USDTAddress:"$User.USDTAddress",
+        USDTNetwork:"$User.USDTNetwork"
+      },
+    },
+  ]);
+  return values;
+};
+
 module.exports = {
   createSetting,
   updateSetting,
@@ -237,4 +272,5 @@ module.exports = {
   TrnsactionHistories,
   getSetting,
   getFcSlotsLog,
+  getWidthdrawRequests,
 };
