@@ -7,6 +7,7 @@ const {
   Slot,
   Payment,
   Yield,
+  AdminWallet,
 } = require("../models/payment.history");
 const { InternalTransaction } = require("../models/refIncome.model");
 
@@ -38,7 +39,7 @@ const getAppReport_Dashboard = async (req) => {
   const todayEnd = new Date(todayStart);
   todayEnd.setUTCDate(todayEnd.getUTCDate() + 1);
 
-  let usersTotal = await User.find({ role: "admin" }).countDocuments();
+  let usersTotal = await User.find({ role: { $ne: "admin" } }).countDocuments();
   let todayUsers = await User.find({
     createdAt: {
       $gte: todayStart,
@@ -83,17 +84,158 @@ const getAppReport_Dashboard = async (req) => {
       },
     },
   ]);
+  let cryptoDepositeToday = await Payment.aggregate([
+    {
+      $match: {
+        status: "Paid",
+      },
+    },
+    {
+      $match: {
+        createdAt: {
+          $gte: todayStart,
+          $lt: todayEnd,
+        },
+      },
+    },
 
-  return {
-    usersTotal,
-    todayUsers,
-    leftOverWallet: leftOverWallet ? leftOverWallet.Yield : 0,
-    completedSlotAll,
-    completedSlottoday,
-    activeSlotToday,
-    activeSlot,
-    cryptoDeposite: cryptoDeposite.length > 0 ? cryptoDeposite[0].amount : 0,
-  };
+    {
+      $group: {
+        _id: null,
+        amount: { $sum: "$amount" },
+      },
+    },
+  ]);
+
+  let internalTransAll = await InternalTransaction.aggregate([
+    {
+      $group: {
+        _id: null,
+        amount: { $sum: "$amount" },
+      },
+    },
+  ]);
+
+  let internalTransAllToday = await InternalTransaction.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: todayStart,
+          $lt: todayEnd,
+        },
+      },
+    },
+
+    {
+      $group: {
+        _id: null,
+        amount: { $sum: "$amount" },
+      },
+    },
+  ]);
+
+  let adminCommisionAll = await AdminWallet.aggregate([
+    {
+      $group: {
+        _id: null,
+        amount: { $sum: "$adminWallet" },
+      },
+    },
+  ]);
+  let adminCommisionTodayAll = await AdminWallet.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: todayStart,
+          $lt: todayEnd,
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        amount: { $sum: "$adminWallet" },
+      },
+    },
+  ]);
+
+  let getTotalYeild = await Yield.aggregate([
+    {
+      $group: {
+        _id: null,
+        amount: { $sum: "$currentYield" },
+      },
+    },
+  ]);
+  let getTotalYeildToday = await Yield.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: todayStart,
+          $lt: todayEnd,
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        amount: { $sum: "$currentYield" },
+      },
+    },
+  ]);
+
+  let finalData = [
+    { title: "Total Users", today: todayUsers, overall: usersTotal },
+    {
+      title: "Yield",
+      today:
+        getTotalYeildToday.length > 0
+          ? getTotalYeildToday[0].amount.toFixed(4)
+          : 0,
+      overall:
+        getTotalYeild.length > 0 ? getTotalYeild[0].amount.toFixed(4) : 0,
+    },
+    {
+      title: "User Main Wallet Balance",
+      today: "--",
+      overall: "--",
+    },
+    {
+      title: "User Crowd Stack Balance",
+      today: "--",
+      overall: "--",
+    },
+    { title: "Admin Wallet Balance", today: "--", overall: "--" },
+    {
+      title: "Admin Comission",
+      today:
+        adminCommisionTodayAll.length > 0
+          ? adminCommisionTodayAll[0].amount
+          : 0,
+      overall: adminCommisionAll.length > 0 ? adminCommisionAll[0].amount : 0,
+    },
+    { title: "Active Slots", today: activeSlotToday, overall: activeSlot },
+    {
+      title: "Completed Slots",
+      today: completedSlottoday,
+      overall: completedSlotAll,
+    },
+    {
+      title: "Crypto Deposit",
+      today: cryptoDepositeToday.length > 0 ? cryptoDepositeToday[0].amount : 0,
+      overall: cryptoDeposite.length > 0 ? cryptoDeposite[0].amount : 0,
+    },
+    { title: "Crypto Withdraw", today: "--", overall: "--" },
+    {
+      title: "Internal Transaction",
+      today:
+        internalTransAllToday.length > 0 ? internalTransAllToday[0].amount : 0,
+      overall: internalTransAll.length > 0 ? internalTransAll[0].amount : 0,
+    },
+    { title: "Leftover Wallet", today: "--", overall: "--" },
+  ];
+
+  return finalData;
 };
 
 const getUserList = async (req) => {
@@ -253,11 +395,11 @@ const getWidthdrawRequests = async () => {
         active: 1,
         userId: 1,
         status: 1,
-        userName:"$User.userName",
-        email:"$User.email",
-        refId:"$User.refId",
-        USDTAddress:"$User.USDTAddress",
-        USDTNetwork:"$User.USDTNetwork"
+        userName: "$User.userName",
+        email: "$User.email",
+        refId: "$User.refId",
+        USDTAddress: "$User.USDTAddress",
+        USDTNetwork: "$User.USDTNetwork",
       },
     },
   ]);
