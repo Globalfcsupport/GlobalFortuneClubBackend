@@ -91,6 +91,11 @@ const withDdrawRequest = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getAdminDetails = catchAsync(async (req, res) => {
+  const data = await UserService.getAdminDetails(req);
+  res.send(data);
+});
+
 module.exports = {
   createUser,
   payments,
@@ -110,4 +115,5 @@ module.exports = {
   updateUserProfile,
   getUserListForDamin,
   withDdrawRequest,
+  getAdminDetails,
 };

@@ -30,4 +30,5 @@ router.route("/profile/image/upload").post(upload.single('image'), VerifyAuthTok
 router.route("/update/userprofile").post(VerifyAuthToken,UserController.updateUserProfile );
 router.route("/users/admin").get(VerifyAuthToken, UserController.getUserListForDamin);
 router.route("/withdraw/request").post(VerifyAuthToken, UserController.withDdrawRequest);
+router.route("/get/admin/details").get(VerifyAuthToken, UserController.getAdminDetails)
 module.exports = router;

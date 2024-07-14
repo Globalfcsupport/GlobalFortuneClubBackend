@@ -517,6 +517,36 @@ const getUserDetails_Dashboard = async (req) => {
       },
     },
     {
+      $lookup: {
+        from: "internaltransactions",
+        localField: "_id",
+        foreignField: "senderId",
+        pipeline: [{ $group: { _id: null, amount: { $sum: "$amount" } } }],
+        as: "internalOut",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$internalOut",
+      },
+    },
+    {
+      $lookup: {
+        from: "internaltransactions",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline: [{ $group: { _id: null, amount: { $sum: "$amount" } } }],
+        as: "internalIn",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$internalIn",
+      },
+    },
+    {
       $project: {
         _id: 1,
         role: 1,
@@ -532,13 +562,15 @@ const getUserDetails_Dashboard = async (req) => {
           ],
         },
         todayYeild: { $ifNull: ["$todayYieldData.todayYield", 0] },
-        crowdStock:1,
+        crowdStock: 1,
         Yield: { $ifNull: ["$mywallet.yieldTotal", 0] },
         activatedTotal: { $ifNull: ["$mywallet.activatedTotal", 0] },
         completedTotal: { $ifNull: ["$mywallet.completedTotal", 0] },
         totalCryptoTopup: { $ifNull: ["$Payment.total", 0] },
         started: 1,
-        reserveMywallet:1,
+        reserveMywallet: 1,
+        internalOut: { $ifNull: ["$internalOut.amount", 0] },
+        internalIn: { $ifNull: ["$internalIn.amount", 0] },
       },
     },
   ]);
@@ -725,6 +757,14 @@ const withDdrawRequest = async (req) => {
   return values;
 };
 
+const getAdminDetails = async (req) => {
+  let findAdmin = await User.findOne({ role: "admin" });
+  if (!findAdmin) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Admin Not Found");
+  }
+  return findAdmin;
+};
+
 module.exports = {
   createUser,
   LoginWithEmailPassword,
@@ -745,4 +785,5 @@ module.exports = {
   updateUserProfile,
   getUserListForDamin,
   withDdrawRequest,
+  getAdminDetails,
 };

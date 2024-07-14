@@ -53,7 +53,7 @@ io.on("connection", (socket) => {
   // Handle joining a room
   socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
-    console.log("joined room", roomId);
+    console.log("joined room", roomId,"LLLLLLLLLl");
   });
 
   // Handle sending a message to a room
