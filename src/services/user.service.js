@@ -23,7 +23,7 @@ const moment = require("moment");
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
   if (findByEmail) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Email Already Exist's");
+    throw new ApiError(httpStatus.BAD_REQUEST, "Email ID already exits");
   }
   let findUserCount = await User.find().count();
   let letter = "z";
