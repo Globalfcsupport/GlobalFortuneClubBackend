@@ -547,6 +547,61 @@ const getUserDetails_Dashboard = async (req) => {
       },
     },
     {
+      $lookup: {
+        from: "refferalincomes",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline:[
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $gte: ["$createdAt", today] },
+                  { $lt: ["$createdAt", tomorrow] },
+                ],
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              amount:{$sum:"$amount"}
+            }
+          }
+        ],
+        as: "refIncomeToday",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path:"$refIncomeToday"
+      }
+    },
+    {
+      $lookup: {
+        from: "refferalincomes",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline:[
+          {
+            $group: {
+              _id: null,
+              amount:{$sum:"$amount"}
+            }
+          }
+        ],
+        as: "refIncomeAll",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path:"$refIncomeAll"
+      }
+    },
+
+    {
       $project: {
         _id: 1,
         role: 1,
@@ -571,6 +626,8 @@ const getUserDetails_Dashboard = async (req) => {
         reserveMywallet: 1,
         internalOut: { $ifNull: ["$internalOut.amount", 0] },
         internalIn: { $ifNull: ["$internalIn.amount", 0] },
+        refIncomeToday:{$ifNull:["$refIncome.amount", 0]},
+        refIncomeAll:{$ifNull:["$refIncomeAll.amount", 0]}
       },
     },
   ]);
@@ -668,7 +725,10 @@ const activateClub = async (req) => {
       { $inc: { adminWallet: PlatformFee } },
       { new: true }
     );
-    RefferalIncome.create({ userId: findReference._id, amount: PlatformFee });
+    await RefferalIncome.create({
+      userId: findReference._id,
+      amount: PlatformFee,
+    });
     SpliteYield(userId);
     return createYield;
   }
