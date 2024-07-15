@@ -551,7 +551,7 @@ const getUserDetails_Dashboard = async (req) => {
         from: "refferalincomes",
         localField: "_id",
         foreignField: "userId",
-        pipeline:[
+        pipeline: [
           {
             $match: {
               $expr: {
@@ -565,9 +565,9 @@ const getUserDetails_Dashboard = async (req) => {
           {
             $group: {
               _id: null,
-              amount:{$sum:"$amount"}
-            }
-          }
+              amount: { $sum: "$amount" },
+            },
+          },
         ],
         as: "refIncomeToday",
       },
@@ -575,21 +575,21 @@ const getUserDetails_Dashboard = async (req) => {
     {
       $unwind: {
         preserveNullAndEmptyArrays: true,
-        path:"$refIncomeToday"
-      }
+        path: "$refIncomeToday",
+      },
     },
     {
       $lookup: {
         from: "refferalincomes",
         localField: "_id",
         foreignField: "userId",
-        pipeline:[
+        pipeline: [
           {
             $group: {
               _id: null,
-              amount:{$sum:"$amount"}
-            }
-          }
+              amount: { $sum: "$amount" },
+            },
+          },
         ],
         as: "refIncomeAll",
       },
@@ -597,8 +597,8 @@ const getUserDetails_Dashboard = async (req) => {
     {
       $unwind: {
         preserveNullAndEmptyArrays: true,
-        path:"$refIncomeAll"
-      }
+        path: "$refIncomeAll",
+      },
     },
 
     {
@@ -626,8 +626,8 @@ const getUserDetails_Dashboard = async (req) => {
         reserveMywallet: 1,
         internalOut: { $ifNull: ["$internalOut.amount", 0] },
         internalIn: { $ifNull: ["$internalIn.amount", 0] },
-        refIncomeToday:{$ifNull:["$refIncome.amount", 0]},
-        refIncomeAll:{$ifNull:["$refIncomeAll.amount", 0]}
+        refIncomeToday: { $ifNull: ["$refIncome.amount", 0] },
+        refIncomeAll: { $ifNull: ["$refIncomeAll.amount", 0] },
       },
     },
   ]);
@@ -825,6 +825,140 @@ const getAdminDetails = async (req) => {
   return findAdmin;
 };
 
+const getuserWallet = async (req) => {
+  let findUserbyId = await User.findById(req.userId);
+  if (!findUserbyId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "USer Not Found");
+  }
+
+  let val = await User.aggregate([
+    {
+      $match: {
+        _id: req.userId,
+      },
+    },
+    {
+      $lookup: {
+        from: "internaltransactions",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              amount: 1,
+              active: 1,
+              createdAt:1,
+              received: {
+                $literal: true,
+              },
+              type: {
+                $literal: "Internal",
+              },
+            },
+          },
+        ],
+        as: "ReceivedInternal",
+      },
+    },
+    {
+      $lookup: {
+        from: "internaltransactions",
+        localField: "_id",
+        foreignField: "senderId",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              amount: 1,
+              active: 1,
+              received: {
+                $literal: false,
+              },
+              type: {
+                $literal: "Internal",
+              },
+              createdAt: 1,
+            },
+          },
+        ],
+        as: "SendInternal",
+      },
+    },
+    {
+      $lookup: {
+        from: "payments",
+        localField: "email",
+        foreignField: "email",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              amount: 1,
+              active: 1,
+              received: {
+                $literal: true,
+              },
+              type: {
+                $literal: "Crypto",
+              },
+              createdAt: 1,
+            },
+          },
+        ],
+        as: "cryptoIn",
+      },
+    },
+    {
+      $lookup: {
+        from: "slots",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              amount: 100,
+              active: 1,
+              active: 1,
+              received: {
+                $literal: false,
+              },
+              type: {
+                $literal: "Crypto",
+              },
+              createdAt: 1,
+            },
+          },
+        ],
+        as: "cryptoOut",
+      },
+    },
+    {
+      $set: {
+        allTransactions: {
+          $concatArrays: [
+            "$ReceivedInternal",
+            "$SendInternal",
+            "$cryptoIn",
+            "$cryptoOut",
+          ],
+        },
+      },
+    },
+    {
+      $project: {
+        ReceivedInternal: 0,
+        SendInternal: 0,
+        cryptoIn: 0,
+        cryptoOut: 0,
+      },
+    },
+  ]);
+
+  return val.length == 0 ? [] : val[0];
+};
+
 module.exports = {
   createUser,
   LoginWithEmailPassword,
@@ -846,4 +980,5 @@ module.exports = {
   getUserListForDamin,
   withDdrawRequest,
   getAdminDetails,
+  getuserWallet,
 };

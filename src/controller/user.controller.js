@@ -96,6 +96,11 @@ const getAdminDetails = catchAsync(async (req, res) => {
   res.send(data);
 });
 
+const getuserWallet = catchAsync(async (req, res) => {
+  const data = await UserService.getuserWallet(req);
+  res.send(data);
+});
+
 module.exports = {
   createUser,
   payments,
@@ -116,4 +121,5 @@ module.exports = {
   getUserListForDamin,
   withDdrawRequest,
   getAdminDetails,
+  getuserWallet,
 };
