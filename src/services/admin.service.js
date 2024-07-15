@@ -13,7 +13,8 @@ const { InternalTransaction } = require("../models/refIncome.model");
 
 const createSetting = async (req) => {
   let userId = req.userId;
-  let creation = await Setting.create(...req.body, ...{ userId });
+  console.log(userId);
+  let creation = await Setting.create({...req.body, ...{ userId }});
   return creation;
 };
 

@@ -45,7 +45,7 @@ const UsersSchema = new mongoose.Schema(
     },
     uplineId: {
       type: String,
-      required: true,
+      // required: true,
     },
     archive: {
       type: Boolean,

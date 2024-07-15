@@ -974,7 +974,7 @@ const getuserWallet = async (req) => {
     },
   ]);
 
-  return val.length == 0 ? [] : val[0];
+  return val.length == 0 ? "" : val[0];
 };
 
 module.exports = {
