@@ -830,7 +830,8 @@ const getuserWallet = async (req) => {
   if (!findUserbyId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "USer Not Found");
   }
-
+  console.log(req.query);
+  const { type } = req.query;
   let val = await User.aggregate([
     {
       $match: {
@@ -848,7 +849,7 @@ const getuserWallet = async (req) => {
               _id: 1,
               amount: 1,
               active: 1,
-              createdAt:1,
+              createdAt: 1,
               received: {
                 $literal: true,
               },
@@ -943,6 +944,23 @@ const getuserWallet = async (req) => {
             "$cryptoIn",
             "$cryptoOut",
           ],
+        },
+      },
+    },
+    {
+      $set: {
+        allTransactions: {
+          $cond: {
+            if: { $eq: [type, "all"] },
+            then: "$allTransactions",
+            else: {
+              $filter: {
+                input: "$allTransactions",
+                as: "transaction",
+                cond: { $eq: ["$$transaction.type", type] },
+              },
+            },
+          },
         },
       },
     },
