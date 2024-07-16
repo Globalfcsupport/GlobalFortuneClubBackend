@@ -19,6 +19,7 @@ const { SpliteYield } = require("../utils/yield.split");
 const Chat = require("../models/chat.model");
 const { Setting, withDraw } = require("../models/admin.model");
 const moment = require("moment");
+const { RefferalIncome } = require("../models/refIncome.model");
 
 const createUser = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
@@ -919,7 +920,7 @@ const getuserWallet = async (req) => {
           {
             $project: {
               _id: 1,
-              amount: 100,
+              amount: '100',
               active: 1,
               active: 1,
               received: {
