@@ -611,12 +611,7 @@ const getUserDetails_Dashboard = async (req) => {
         active: 1,
         refId: 1,
         uplineId: 1,
-        wallet: {
-          $add: [
-            { $ifNull: ["$mywallet.walletTotal", 0] },
-            { $ifNull: ["$myWallet", 0] },
-          ],
-        },
+        wallet: "$myWallet",
         todayYeild: { $ifNull: ["$todayYieldData.todayYield", 0] },
         crowdStock: 1,
         Yield: { $ifNull: ["$mywallet.yieldTotal", 0] },
