@@ -692,7 +692,7 @@ const activateClub = async (req) => {
       { $inc: { adminWallet: PlatformFee } },
       { new: true }
     );
-    RefferalIncome.create({ userId: findReference._id, amount: PlatformFee });
+   await RefferalIncome.create({ userId: findReference._id, amount: PlatformFee });
 
     return createYield;
   } else {
