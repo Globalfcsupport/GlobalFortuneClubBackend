@@ -342,9 +342,6 @@ const AutoActivateSlot = async () => {
                 }
               }
             }else{
-  
-              let findActivated = await Slot.findOne({userId:element._id, status:"Activated"})
-              if(!findActivated){
                 let totalCrowdStock = 100 - crowdStock;
                 console.log(totalCrowdStock, "Total Crowd Stack Else");
                 element.crowdStock = 0;
@@ -401,7 +398,7 @@ const AutoActivateSlot = async () => {
                    console.log(PLPL, "PLPLPLPLPLPL Else Else");
                   }
                 }
-              }
+              
               
             }
           }
