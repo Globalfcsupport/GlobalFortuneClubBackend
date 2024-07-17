@@ -414,8 +414,10 @@ const getUsersByRefId = async (req) => {
 
 const getUserDetails_Dashboard = async (req) => {
   let userId = req.userId;
-  const today = moment().startOf("day").toDate();
-  const tomorrow = moment().add(1, "days").startOf("day").toDate();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1); 
   let values = await User.aggregate([
     {
       $match: { _id: userId },
@@ -481,7 +483,7 @@ const getUserDetails_Dashboard = async (req) => {
     },
     {
       $lookup: {
-        from: "yeildhistories",
+        from: "yieldhistories",
         let: { userId: "$_id" },
         pipeline: [
           {
@@ -490,23 +492,22 @@ const getUserDetails_Dashboard = async (req) => {
                 $and: [
                   { $eq: ["$userId", "$$userId"] },
                   { $gte: ["$createdAt", today] },
-                  { $lt: ["$createdAt", tomorrow] },
-                ],
-              },
-            },
+                  { $lt: ["$createdAt", tomorrow] }
+                ]
+              }
+            }
           },
           {
             $group: {
               _id: null,
-              todayYield: {
-                $sum: "$currentYield",
-              },
-            },
-          },
+              todayYield: { $sum: "$currentYield" }
+            }
+          }
         ],
-        as: "todayYieldData",
-      },
+        as: "todayYieldData"
+      }
     },
+  
     {
       $unwind: {
         preserveNullAndEmptyArrays: true,
