@@ -81,12 +81,12 @@ const LoginWithOTPVerify = async (req) => {
     OTP: otp,
     verified: false,
   });
-
-  let findByEmail = await User.findOne({ email: findOtpByemail_Otp.email });
-
   if (!findOtpByemail_Otp) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Invalid OTP");
   }
+  let findByEmail = await User.findOne({ email: findOtpByemail_Otp.email });
+
+
   findOtpByemail_Otp.verified = true;
   findOtpByemail_Otp.save();
   return findByEmail;

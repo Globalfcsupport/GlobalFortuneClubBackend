@@ -163,10 +163,7 @@ const getPaymentNotification = async (req) => {
         { $inc: { myWallet: res.amount } },
         { new: true }
       );
-      console.log(updated, "If");
     }
-
-    console.log(updated);
   } else {
     res = await Payment.create(req.body);
     if (res.status == "Paid") {
