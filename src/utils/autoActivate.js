@@ -343,61 +343,67 @@ const AutoActivateSlot = async () => {
               }
             }
           }else{
-            let totalCrowdStock = 100 - crowdStock;
-            console.log(totalCrowdStock, "Total Crowd Stack Else");
-            element.crowdStock = 0;
-            element.myWallet = element.myWallet - totalCrowdStock;
-            element.save()
-            console.log(element,"ASDASD");
-            let adminWallet = await AdminYield.findOne().sort({createdAt:-1});
-            let adminYield = adminWallet.Yield ?adminWallet.Yield:0;
-            let Yields = adminYield + 100;
-            let totalActivatedSlotCount = await Yield.find({status:"Activated"}).countDocuments();
-            let totalActivatedSlot = await Yield.find({status:"Activated"});
-            let splitYields = Yields / totalActivatedSlotCount;
-            let slotcreate = await Slot.create({status:"Activated", userId:element._id,refId:element.refId });
-            let settingFind = await Setting.findOne().sort({createdAt:-1});
-            let findUserbyId = await User.findById(slotcreate.userId);
-            let refCommision = settingFind.ReferalCommisionSlot;
-            let findReference = await User.findOne({refId:findUserbyId.uplineId});
-            let PlatformFee = (100 * refCommision) / 100;
-            findReference = await User.findOneAndUpdate({_id:findReference._id}, {$inc:{adminWallet:PlatformFee}}, {new:true});
-            RefferalIncome.create({userId:findReference._id, amount:PlatformFee})
-            await Yield.create({status:"Activated", userId:element._id,refId:element.refId, slotId:slotcreate._id,totalYield:200,currentYield:0,crowdStock:0,wallet:0 })
-            adminWallet.Yield = 0;
-            adminWallet.save();
-            for (let slots = 0; slots < totalActivatedSlot.length; slots++) {
-              const splittedYield = splitYields / 2;
-              let slot = totalActivatedSlot[slots];
-              slot.currentYield = slot.currentYield + splitYields;
-              slot.crowdStock = slot.crowdStock + splittedYield;
-              slot.wallet = slot.wallet + splittedYield;
-              await Yeild_history.create({userId:slot.userId, slotId:slot.slotId, currentYield:splitYields});
-              slot.save();
-              if(slot.currentYield > 200){
-                slot.currentYield = 200;
-                slot.crowdStock = 100;
-                slot.wallet = 200;
-                slot.status = "Completed";
-                await Slot.findByIdAndUpdate({_id:slot.slotId}, { status:"Completed"}, {new:true})
-                let PlatformFee = (200 * settings.platFormFee) / 100;
-                let elup = await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
-                console.log(elup, "else update IF");
+
+            let findActivated = await Slot.findOne({userId:element._id, status:"Activated"})
+            if(!findActivated){
+              let totalCrowdStock = 100 - crowdStock;
+              console.log(totalCrowdStock, "Total Crowd Stack Else");
+              element.crowdStock = 0;
+              element.myWallet = element.myWallet - totalCrowdStock;
+              element.save()
+              
+              let adminWallet = await AdminYield.findOne().sort({createdAt:-1});
+              let adminYield = adminWallet.Yield ?adminWallet.Yield:0;
+              let Yields = adminYield + 100;
+              let totalActivatedSlotCount = await Yield.find({status:"Activated"}).countDocuments();
+              let totalActivatedSlot = await Yield.find({status:"Activated"});
+              let splitYields = Yields / totalActivatedSlotCount;
+              let slotcreate = await Slot.create({status:"Activated", userId:element._id,refId:element.refId });
+              let settingFind = await Setting.findOne().sort({createdAt:-1});
+              let findUserbyId = await User.findById(slotcreate.userId);
+              let refCommision = settingFind.ReferalCommisionSlot;
+              let findReference = await User.findOne({refId:findUserbyId.uplineId});
+              let PlatformFee = (100 * refCommision) / 100;
+              
+              findReference = await User.findOneAndUpdate({_id:findReference._id}, {$inc:{adminWallet:PlatformFee}}, {new:true});
+              RefferalIncome.create({userId:findReference._id, amount:PlatformFee})
+              await Yield.create({status:"Activated", userId:element._id,refId:element.refId, slotId:slotcreate._id,totalYield:200,currentYield:0,crowdStock:0,wallet:0 })
+              adminWallet.Yield = 0;
+              adminWallet.save();
+              for (let slots = 0; slots < totalActivatedSlot.length; slots++) {
+                const splittedYield = splitYields / 2;
+                let slot = totalActivatedSlot[slots];
+                slot.currentYield = slot.currentYield + splitYields;
+                slot.crowdStock = slot.crowdStock + splittedYield;
+                slot.wallet = slot.wallet + splittedYield;
+                await Yeild_history.create({userId:slot.userId, slotId:slot.slotId, currentYield:splitYields});
                 slot.save();
-                let rem = slot.currentYield - 200;
-                await Yeild_history.create({slotId:slot.slotId, userId:slot.userId,currentYield: -rem });
-                let findLatestLOV = await AdminYield.findOne().sort({createdAt:-1})
-                if(findLatestLOV){
-                  findLatestLOV = await AdminYield.findByIdAndUpdate({_id:findLatestLOV._id}, {$inc:{Yield:rem}},{new:true});
+                if(slot.currentYield > 200){
+                  slot.currentYield = 200;
+                  slot.crowdStock = 100;
+                  slot.wallet = 200;
+                  slot.status = "Completed";
+                  await Slot.findByIdAndUpdate({_id:slot.slotId}, { status:"Completed"}, {new:true})
+                  let PlatformFee = (200 * settings.platFormFee) / 100;
+                  let elup = await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+                  console.log(elup, "else update IF");
+                  slot.save();
+                  let rem = slot.currentYield - 200;
+                  await Yeild_history.create({slotId:slot.slotId, userId:slot.userId,currentYield: -rem });
+                  let findLatestLOV = await AdminYield.findOne().sort({createdAt:-1})
+                  if(findLatestLOV){
+                    findLatestLOV = await AdminYield.findByIdAndUpdate({_id:findLatestLOV._id}, {$inc:{Yield:rem}},{new:true});
+                  }
+                }else if(slot.currentYield == 200){
+                  slot.status = "Completed";
+                  await Slot.findByIdAndUpdate({_id:slot.slotId}, { status:"Completed"}, {new:true})
+                  let PlatformFee = (200 * settings.platFormFee) / 100;
+                 let PLPL =  await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
+                 console.log(PLPL, "PLPLPLPLPLPL Else Else");
                 }
-              }else if(slot.currentYield == 200){
-                slot.status = "Completed";
-                await Slot.findByIdAndUpdate({_id:slot.slotId}, { status:"Completed"}, {new:true})
-                let PlatformFee = (200 * settings.platFormFee) / 100;
-               let PLPL =  await AdminWallet.create({slotId:slot.slotId ,adminWallet: PlatformFee});
-               console.log(PLPL, "PLPLPLPLPLPL Else Else");
               }
             }
+            
           }
         }
       }
