@@ -172,7 +172,6 @@ const getPaymentNotification = async (req) => {
         { $inc: { myWallet: res.amount } },
         { new: true }
       );
-      console.log(updated, "Else");
     }
     return findByOrderId;
   }
