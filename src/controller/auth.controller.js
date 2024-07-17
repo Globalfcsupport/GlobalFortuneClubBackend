@@ -42,6 +42,12 @@ const LoginWithOTPVerify = catchAsync(async (req, res) => {
   res.send({ data, token });
 });
 
+const GenerateOTPSignUp = catchAsync(async (req, res) => {
+  const data = await AuthService.GenerateOTPSignUp(req);
+  await sendOtpVerification(data);
+  res.send({ message: "OTP SEND SUCCESSFULLY...." });
+});
+
 module.exports = {
   Registration,
   VerifyOTP,
@@ -50,4 +56,5 @@ module.exports = {
   VerifyRef,
   GenerateOTP,
   LoginWithOTPVerify,
+  GenerateOTPSignUp,
 };

@@ -10,6 +10,7 @@ router.route("/verify").post(AuthContrller.VerifyOTP);
 router.route("/admin/login").post(AuthContrller.AdminLogin);
 router.route("/verifyref").post(CheckSignUpPermission, AuthContrller.VerifyRef);
 router.route("/send/otp").post(AuthContrller.GenerateOTP);
-router.route("/user/login").post(AuthContrller.LoginWithOTPVerify)
+router.route("/user/login").post(AuthContrller.LoginWithOTPVerify);
+router.route('/user/signup/otp').post(AuthContrller.GenerateOTPSignUp);
 
 module.exports = router;

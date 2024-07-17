@@ -8,7 +8,7 @@ const { generateRefId } = require("../utils/referalIdGenerator");
 const Registration = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
   if (findByEmail) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Email Already Exist's");
+    throw new ApiError(httpStatus.BAD_REQUEST, "E-mail already exist");
   }
   await VerifyOTP(req.body);
   let findUserCount = await User.find().count();
@@ -30,6 +30,23 @@ const Registration = async (req) => {
 const GenerateOTP = async (req) => {
   const { email } = req.body;
   console.log(email);
+  let OTP = await OTPGenerator(email);
+  if (!OTP) {
+    throw new ApiError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "OTP SEND FAILED........."
+    );
+  }
+  return OTP;
+};
+
+const GenerateOTPSignUp = async (req) => {
+  const { email } = req.body;
+  let findByEmail = await User.findOne({ email });
+  console.log(findByEmail, "KKKKKKKK");
+  if (findByEmail) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "E-mail already exist");
+  }
   let OTP = await OTPGenerator(email);
   if (!OTP) {
     throw new ApiError(
@@ -69,7 +86,7 @@ const VerifyRef = async (req) => {
   const { refId } = req.body;
   let findByVerificationCode = await User.findOne({ refId });
   if (!findByVerificationCode) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid Refferal");
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid refferal ID");
   }
   return findByVerificationCode;
 };
@@ -87,7 +104,7 @@ const LoginWithOTPVerify = async (req) => {
 
   let findByEmail = await User.findOne({ email: findOtpByemail_Otp.email });
   if (!findByEmail) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "E-mail Doesn't Exist");
+    throw new ApiError(httpStatus.BAD_REQUEST, "E-mail doesn't exist");
   }
 
   findOtpByemail_Otp.verified = true;
@@ -102,4 +119,5 @@ module.exports = {
   VerifyRef,
   GenerateOTP,
   LoginWithOTPVerify,
+  GenerateOTPSignUp,
 };
