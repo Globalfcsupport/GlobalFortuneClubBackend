@@ -524,7 +524,7 @@ const getUserDetails_Dashboard = async (req) => {
           {
             $group: {
               _id: null,
-              total: { $sum: "$price" },
+              total: { $sum: "$requestAmt" },
             },
           },
         ],
