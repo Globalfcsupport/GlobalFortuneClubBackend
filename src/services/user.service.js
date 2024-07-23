@@ -515,6 +515,29 @@ const getUserDetails_Dashboard = async (req) => {
         path: "$Payment",
       },
     },
+    {
+      $lookup: {
+        from: "withdraws",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline: [
+          {
+            $group: {
+              _id: null,
+              total: { $sum: "$price" },
+            },
+          },
+        ],
+        as: "withdraw",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$withdraw",
+      },
+    },
+
     // {
     //   $lookup: {
     //     from: "yieldhistories",
@@ -649,6 +672,7 @@ const getUserDetails_Dashboard = async (req) => {
         internalIn: { $ifNull: ["$internalIn.amount", 0] },
         refIncomeToday: { $ifNull: ["$refIncome.amount", 0] },
         refIncomeAll: { $ifNull: ["$refIncomeAll.amount", 0] },
+        withdraw:{$ifNull:['$withdraw.total',0]}
       },
     },
   ]);
