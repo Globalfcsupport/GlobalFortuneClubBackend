@@ -414,13 +414,42 @@ const getUsersByRefId = async (req) => {
 
 const getUserDetails_Dashboard = async (req) => {
   let userId = req.userId;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1); 
+  const today = moment().startOf("day").utc().toDate();
+  const tomorrow = moment().endOf("day").utc().toDate();
+  const todayDate = moment().startOf("day");
   let values = await User.aggregate([
     {
       $match: { _id: userId },
+    },
+    {
+      $lookup: {
+        from: "yeildhistories",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline: [
+          {
+            $match: {
+              createdAt: {
+                $gte: today.toDate(),
+                $lt: moment(today).endOf("day").toDate(),
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              todayYield: { $sum: "$currentYield" },
+            },
+          },
+        ],
+        as: "todayYieldData",
+      },
+    },
+    {
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$todayYieldData",
+      },
     },
     {
       $lookup: {
@@ -481,39 +510,33 @@ const getUserDetails_Dashboard = async (req) => {
         path: "$Payment",
       },
     },
-    {
-      $lookup: {
-        from: "yieldhistories",
-        let: { userId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$userId", "$$userId"] },
-                  { $gte: ["$createdAt", today] },
-                  { $lt: ["$createdAt", tomorrow] }
-                ]
-              }
-            }
-          },
-          {
-            $group: {
-              _id: null,
-              todayYield: { $sum: "$currentYield" }
-            }
-          }
-        ],
-        as: "todayYieldData"
-      }
-    },
-  
-    {
-      $unwind: {
-        preserveNullAndEmptyArrays: true,
-        path: "$todayYieldData",
-      },
-    },
+    // {
+    //   $lookup: {
+    //     from: "yieldhistories",
+    //     let: { userId: "$_id" },
+    //     pipeline: [
+    //       {
+    //         $match: {
+    //           $expr: {
+    //             $and: [
+    //               { $eq: ["$userId", "$$userId"] },
+    //               { $gte: ["$createdAt", today] },
+    //               { $lt: ["$createdAt", tomorrow] },
+    //             ],
+    //           },
+    //         },
+    //       },
+    //       {
+    //         $group: {
+    //           _id: null,
+    //           todayYield: { $sum: "$currentYield" },
+    //         },
+    //       },
+    //     ],
+    //     as: "todayYieldData",
+    //   },
+    // },
+
     {
       $lookup: {
         from: "internaltransactions",
@@ -684,8 +707,15 @@ const activateClub = async (req) => {
       { $inc: { adminWallet: PlatformFee } },
       { new: true }
     );
-   await RefferalIncome.create({ userId: findReference._id, amount: PlatformFee });
-
+    await User.findOneAndUpdate(
+      { role: "admin" },
+      { $inc: { adminWallet: -1 } },
+      { new: true }
+    );
+    await RefferalIncome.create({
+      userId: findReference._id,
+      amount: PlatformFee,
+    });
     return createYield;
   } else {
     let findUserbyId = await User.findById(userId);
@@ -716,6 +746,11 @@ const activateClub = async (req) => {
     findReference = await User.findOneAndUpdate(
       { _id: findReference._id },
       { $inc: { adminWallet: PlatformFee } },
+      { new: true }
+    );
+    await User.findOneAndUpdate(
+      { role: "admin" },
+      { $inc: { adminWallet: -1 } },
       { new: true }
     );
     await RefferalIncome.create({
@@ -912,7 +947,7 @@ const getuserWallet = async (req) => {
           {
             $project: {
               _id: 1,
-              amount: '100',
+              amount: "100",
               active: 1,
               active: 1,
               received: {
