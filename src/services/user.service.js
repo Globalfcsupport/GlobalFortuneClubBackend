@@ -1064,11 +1064,8 @@ const getuserWallet = async (req) => {
     },
   ]);
 
-
-  if( val.length == 0){
-    throw new ApiError(httpStatus.BAD_REQUEST, "Data Not Found")
-  }
-  return val[0];
+  let findUserById = await User.findById(req.userId)
+  return val.length == 0 ? {...findUserById.toObject(), allTransactions:[] } : val[0];
 };
 
 module.exports = {
