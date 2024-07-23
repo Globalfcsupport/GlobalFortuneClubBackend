@@ -416,7 +416,8 @@ const getUserDetails_Dashboard = async (req) => {
   let userId = req.userId;
   const today = moment().startOf("day").utc().toDate();
   const tomorrow = moment().endOf("day").utc().toDate();
-  const todayDate = moment().startOf("day");
+  const todayDate = moment().format("YYYY-MM-DD");
+  console.log(todayDate);
   let values = await User.aggregate([
     {
       $match: { _id: userId },
@@ -428,11 +429,13 @@ const getUserDetails_Dashboard = async (req) => {
         foreignField: "userId",
         pipeline: [
           {
+            $addFields: {
+              yearMonthDay: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            },
+          },
+          {
             $match: {
-              createdAt: {
-                $gte: today.toDate(),
-                $lt: moment(today).endOf("day").toDate(),
-              },
+              yearMonthDay: todayDate,
             },
           },
           {
