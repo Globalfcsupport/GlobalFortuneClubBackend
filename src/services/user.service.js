@@ -859,7 +859,19 @@ const getuserWallet = async (req) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "USer Not Found");
   }
   console.log(req.query);
-  const { type,date } = req.query;
+  const { type, date } = req.query;
+  let dateMatch = {
+    $elemMatch: {
+      active: { $eq: true },
+    },
+  };
+  if (date) {
+    dateMatch = {
+      $elemMatch: {
+        date: { $eq: date },
+      },
+    };
+  }
   let val = await User.aggregate([
     {
       $match: {
@@ -877,7 +889,12 @@ const getuserWallet = async (req) => {
               _id: 1,
               amount: 1,
               active: 1,
-              createdAt: 1,
+              date: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$createdAt",
+                },
+              },
               received: {
                 $literal: true,
               },
@@ -907,7 +924,12 @@ const getuserWallet = async (req) => {
               type: {
                 $literal: "Internal",
               },
-              createdAt: 1,
+              date: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$createdAt",
+                },
+              },
             },
           },
         ],
@@ -931,7 +953,12 @@ const getuserWallet = async (req) => {
               type: {
                 $literal: "Crypto",
               },
-              createdAt: 1,
+              date: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$createdAt",
+                },
+              },
             },
           },
         ],
@@ -956,7 +983,12 @@ const getuserWallet = async (req) => {
               type: {
                 $literal: "Crypto",
               },
-              createdAt: 1,
+              date: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$createdAt",
+                },
+              },
             },
           },
         ],
@@ -998,6 +1030,33 @@ const getuserWallet = async (req) => {
         SendInternal: 0,
         cryptoIn: 0,
         cryptoOut: 0,
+      },
+    },
+    {
+      $match: {
+        allTransactions: dateMatch,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        role: 1,
+        userName: 1,
+        email: 1,
+        active: 1,
+        refId: 1,
+        myWallet: 1,
+        crowdStock: 1,
+        reserveMywallet: 1,
+        uplineId: 1,
+        archive: 1,
+        started: 1,
+        adminWallet: 1,
+        USDTAddress: 1,
+        USDTNetwork: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        allTransactions: 1,
       },
     },
   ]);
