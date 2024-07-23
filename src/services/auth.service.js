@@ -88,7 +88,14 @@ const VerifyRef = async (req) => {
   if (!findByVerificationCode) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Invalid refferal ID");
   }
-  return findByVerificationCode;
+  let findSlot = await Slot.findOne({userId:findByVerificationCode._id})
+  if(findSlot){
+    let datas = {...findByVerificationCode, ...{activeSlot:true}}
+    return datas
+  }else{
+    let datas = {...findByVerificationCode, ...{activeSlot:false}}
+    return datas
+  }
 };
 
 const LoginWithOTPVerify = async (req) => {
