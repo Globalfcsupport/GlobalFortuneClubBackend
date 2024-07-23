@@ -430,7 +430,9 @@ const getUserDetails_Dashboard = async (req) => {
         pipeline: [
           {
             $addFields: {
-              yearMonthDay: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+              yearMonthDay: {
+                $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+              },
             },
           },
           {
@@ -864,17 +866,13 @@ const getuserWallet = async (req) => {
   console.log(req.query);
   const { type, date } = req.query;
   let dateMatch = {
-    $elemMatch: {
-      active: { $eq: true },
-    },
+    active: true,
   };
+
   if (date) {
-    dateMatch = {
-      $elemMatch: {
-        date: { $eq: date },
-      },
-    };
+    dateMatch = { date: date };
   }
+
   let val = await User.aggregate([
     {
       $match: {
@@ -906,6 +904,9 @@ const getuserWallet = async (req) => {
               },
             },
           },
+          {
+            $match: dateMatch,
+          },
         ],
         as: "ReceivedInternal",
       },
@@ -934,6 +935,9 @@ const getuserWallet = async (req) => {
                 },
               },
             },
+          },
+          {
+            $match: dateMatch,
           },
         ],
         as: "SendInternal",
@@ -964,6 +968,9 @@ const getuserWallet = async (req) => {
               },
             },
           },
+          {
+            $match: dateMatch,
+          },
         ],
         as: "cryptoIn",
       },
@@ -993,6 +1000,9 @@ const getuserWallet = async (req) => {
                 },
               },
             },
+          },
+          {
+            $match: dateMatch,
           },
         ],
         as: "cryptoOut",
@@ -1036,11 +1046,6 @@ const getuserWallet = async (req) => {
       },
     },
     {
-      $match: {
-        allTransactions: dateMatch,
-      },
-    },
-    {
       $project: {
         _id: 1,
         role: 1,
@@ -1060,12 +1065,15 @@ const getuserWallet = async (req) => {
         createdAt: 1,
         updatedAt: 1,
         allTransactions: 1,
+        date: 1,
       },
     },
   ]);
 
-  let findUserById = await User.findById(req.userId)
-  return val.length == 0 ? {...findUserById.toObject(), allTransactions:[] } : val[0];
+  let findUserById = await User.findById(req.userId);
+  return val.length == 0
+    ? { ...findUserById.toObject(), allTransactions: [] }
+    : val[0];
 };
 
 module.exports = {
