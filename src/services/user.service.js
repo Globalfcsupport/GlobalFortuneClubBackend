@@ -859,7 +859,7 @@ const getuserWallet = async (req) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "USer Not Found");
   }
   console.log(req.query);
-  const { type } = req.query;
+  const { type,date } = req.query;
   let val = await User.aggregate([
     {
       $match: {

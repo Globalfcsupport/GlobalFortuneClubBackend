@@ -4,6 +4,7 @@ const User = require("../models/users.model");
 const { OTPGenerator } = require("../utils/OTP");
 const OTP = require("../models/Otp.model");
 const { generateRefId } = require("../utils/referalIdGenerator");
+const { Slot } = require("../models/payment.history");
 
 const Registration = async (req) => {
   let findByEmail = await User.findOne({ email: req.body.email });
