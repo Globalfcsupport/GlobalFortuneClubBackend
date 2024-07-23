@@ -9,6 +9,8 @@ const {
 const { Setting } = require("../models/admin.model");
 const User = require("../models/users.model");
 const { RefferalIncome } = require("../models/refIncome.model");
+const { NumberToLetters } = require("./referalIdGenerator");
+
 
 const AutoActivateSlot = async () => {
   let startedUsers = await User.find({ started: true });
@@ -62,10 +64,13 @@ const AutoActivateSlot = async () => {
                 status: "Activated",
               });
               let splitYields = Yields / totalActivatedSlotCount;
+              let slotCount = await Slot.find({ userId: element._id}).countDocuments()
+              let slotId_id = NumberToLetters(slotCount)
               let slotcreate = await Slot.create({
                 status: "Activated",
                 userId: element._id,
                 refId: element.refId,
+                slotId: `${element.refId}-${slotId_id}`,
               });
               await Yield.create({
                 status: "Activated",
@@ -192,10 +197,12 @@ const AutoActivateSlot = async () => {
                 status: "Activated",
               });
               let splitYields = Yields / totalActivatedSlotCount;
+              let slotId_id = NumberToLetters(slotCount)
               let slotcreate = await Slot.create({
                 status: "Activated",
                 userId: element._id,
                 refId: element.refId,
+                slotId: `${element.refId}-${slotId_id}`,
               });
               let settingFind = await Setting.findOne().sort({ createdAt: -1 });
               let findUserbyId = await User.findById(slotcreate.userId);

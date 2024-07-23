@@ -15,6 +15,20 @@ const generateRefId = async (letter, existingId) => {
   return { ID: id + numeric };
 };
 
+function NumberToLetters(num) {
+  let result = '';
+  while (num > 0) {
+      num--; // Decrement num to make it zero-indexed
+      let remainder = num % 26;
+      result = String.fromCharCode(65 + remainder) + result;
+      num = Math.floor(num / 26);
+  }
+  return result;
+}
+
+
 module.exports = {
   generateRefId,
+  NumberToLetters
 };
+

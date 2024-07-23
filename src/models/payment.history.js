@@ -91,6 +91,9 @@ const slotSchema = new mongoose.Schema(
     status: {
       type: String,
     },
+    slotId: {
+      type: String,
+    },
     active: {
       type: Boolean,
       default: true,

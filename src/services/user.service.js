@@ -2,7 +2,7 @@ const ApiError = require("../utils/ApiError");
 const httpStatus = require("http-status");
 const User = require("../models/users.model");
 const { OTPGenerator } = require("../utils/OTP");
-const { generateRefId } = require("../utils/referalIdGenerator");
+const { generateRefId, NumberToLetters } = require("../utils/referalIdGenerator");
 const Bcrypt = require("bcryptjs");
 const { oxaPay } = require("../config/config");
 const QS = require("qs");
@@ -693,7 +693,9 @@ const activateClub = async (req) => {
       { started: true, $inc: { myWallet: -100 } },
       { new: true }
     );
-    let createSlot = await Slot.create({ userId: userId, status: "Activated" });
+    let slotCount = await Slot.find().countDocuments();
+    let slotId_id = NumberToLetters(slotCount);
+    let createSlot = await Slot.create({ userId: userId, status: "Activated",slotId:`${slotId_id}-${findUserbyId.refId}` });
     let createYield = await Yield.create({
       userId: userId,
       status: "Activated",
@@ -735,7 +737,9 @@ const activateClub = async (req) => {
       { started: true, $inc: { myWallet: -100 } },
       { new: true }
     );
-    let createSlot = await Slot.create({ userId: userId, status: "Activated" });
+    let slotCount = await Slot.find().countDocuments();
+    let slotId_id = NumberToLetters(slotCount);
+    let createSlot = await Slot.create({ userId: userId, status: "Activated",slotId:`${slotId_id}-${findUserbyId.refId}` });
     let createYield = await Yield.create({
       userId: userId,
       status: "Activated",
