@@ -1064,7 +1064,11 @@ const getuserWallet = async (req) => {
     },
   ]);
 
-  return val.length == 0 ? "" : val[0];
+
+  if( val.length == 0){
+    throw new ApiError(httpStatus.BAD_REQUEST, "Data Not Found")
+  }
+  return val[0];
 };
 
 module.exports = {
