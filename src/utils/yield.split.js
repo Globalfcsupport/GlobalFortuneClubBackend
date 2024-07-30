@@ -109,7 +109,7 @@ const SpliteYield = async (userId) => {
         if (findUserById) {
           findUserById = await User.findByIdAndUpdate({_id:findUserById._id}, {$inc:{wallet:-set.platFormFee}},{new:true})
           await AdminWallet.create({Type:"Completed"}, {slotId:element.slotId, adminWallet:set.platFormFee}, {new:true})
-          await User.findByIdAndUpdate({role:"admin"}, { $inc:{adminWallet:set.platFormFee} }, {new:true})
+          await User.findOneAndUpdate({role:"admin"}, { $inc:{adminWallet:set.platFormFee} }, {new:true})
         }
       }
     }
