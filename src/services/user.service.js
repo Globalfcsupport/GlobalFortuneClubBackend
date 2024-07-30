@@ -733,7 +733,7 @@ const activateClub = async (req) => {
     );
     let slotCount = await Slot.find().countDocuments();
     let slotId_id = NumberToLetters(slotCount);
-    let createSlot = await Slot.create({ userId: userId, status: "Activated",slotId:`${slotId_id}-${findUserbyId.refId}` });
+    let createSlot = await Slot.create({ userId: userId, status: "Activated",slotId:`${findUserbyId.refId}-${slotId_id}` });
     let createYield = await Yield.create({
       userId: userId,
       status: "Activated",
@@ -777,7 +777,7 @@ const activateClub = async (req) => {
     );
     let slotCount = await Slot.find().countDocuments();
     let slotId_id = NumberToLetters(slotCount);
-    let createSlot = await Slot.create({ userId: userId, status: "Activated",slotId:`${slotId_id}-${findUserbyId.refId}` });
+    let createSlot = await Slot.create({ userId: userId, status: "Activated",slotId:`${findUserbyId.refId}-${slotId_id}` });
     let createYield = await Yield.create({
       userId: userId,
       status: "Activated",
