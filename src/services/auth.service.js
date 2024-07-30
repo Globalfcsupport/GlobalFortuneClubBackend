@@ -94,7 +94,11 @@ const VerifyRef = async (req) => {
     findByVerificationCode.activeSlot = true;
     return { ...findByVerificationCode.toObject(), activeSlot: true };
   } else {
-    return { ...findByVerificationCode.toObject(), activeSlot: false };
+    if(findByVerificationCode.role =='admin'){
+    return { ...findByVerificationCode.toObject(), activeSlot: true };
+    }else{
+      return { ...findByVerificationCode.toObject(), activeSlot: false }
+    }
 
     // return findSlot
   }
