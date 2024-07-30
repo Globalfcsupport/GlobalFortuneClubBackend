@@ -329,10 +329,24 @@ const getFcSlots = async (req) => {
       },
     },
     {
+      $lookup:{
+        from:'slots',
+        localField:'slotId',
+        foreignField:'_id',
+        as:'slot'
+      }
+    },
+    {
+      $unwind:{
+        preserveNullAndEmptyArrays:true,
+        path:'$slot'
+      }
+    },
+    {
       $project: {
         _id: 1,
         userId: 1,
-        slotId: 1,
+        slotId: {$ifNull:['$slot.slotId',null]},
         no_ofSlot: 1,
         totalYield: 1,
         crowdStock: 1,
