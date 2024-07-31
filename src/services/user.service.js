@@ -68,12 +68,13 @@ const payments = async (req) => {
   let findPayment = await Payment.findOne({email:finduserById})
   
   if(findPayment){
-    const timestamp1 = findExistPayment.createdAt;
+    const timestamp1 = finduserById.createdAt;
     const timestamp2 = moment().toISOString();
     const date1 = moment(timestamp1);
     const date2 = moment(timestamp2);
     const difference = moment.duration(date2.diff(date1));
     const hours = Math.floor(difference.asHours());
+    console.log(hours);
     if(hours < 3){
       throw new ApiError(httpStatus.BAD_REQUEST, "You Can Topup After 3 hours")
     }else{
