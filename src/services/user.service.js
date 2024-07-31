@@ -196,37 +196,6 @@ const payments = async (req) => {
 
 const getPaymentNotification = async (req) => {
   let res;
-  // let findByOrderId = await Payment.findOne({
-  //   orderId: req.body.orderId,
-  //   status: { $ne: "Paid" },
-  // });
-  // console.log(req.body.email);
-  // if (findByOrderId) {
-  //   res = await Payment.findByIdAndUpdate(
-  //     { _id: findByOrderId._id },
-  //     req.body,
-  //     {
-  //       new: true,
-  //     }
-  //   );
-  //   if (res.status == "Paid") {
-  //     let updated = await User.findOneAndUpdate(
-  //       { email: req.body.email },
-  //       { $inc: { myWallet: res.amount } },
-  //       { new: true }
-  //     );
-  //   }
-  // } else {
-  //   res = await Payment.create(req.body);
-  //   if (res.status == "Paid") {
-  //     let updated = await User.findOneAndUpdate(
-  //       { email: req.body.email },
-  //       { $inc: { myWallet: res.amount } },
-  //       { new: true }
-  //     );
-  //   }
-  //   return findByOrderId;
-  // }
 
   let findByOrderId = await Payment.findOne({
     orderId: req.body.orderId,
@@ -266,9 +235,13 @@ const getPaymentNotification = async (req) => {
         console.log("After 3 hours");
       }
     } else {
-      res = await Payment.create(req.body);
-      if (res.status == "Paid") {
-        console.log(res,"YES");
+      if(req.body.status == 'Paid'){
+        res = await Payment.create(req.body);
+        await User.findOneAndUpdate(
+          { email: req.body.email },
+          { $inc: { myWallet: res.amount } },
+          { new: true }
+        );
       }
     }
   }
