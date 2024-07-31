@@ -28,11 +28,7 @@ const SpliteYield = async (userId) => {
     const splitTwo = splitAmount / 2;
 
     for (let element of findExistingActivatedSlots) {
-      console.log(element);
-
       let YIELD = element.currentYield + splitAmount;
-      console.log(YIELD, "Updated Yield");
-
       if (YIELD > 200) {
         let staticAmount = 100;
         let rem = YIELD - 200;

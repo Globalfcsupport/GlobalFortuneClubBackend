@@ -65,9 +65,12 @@ const payments = async (req) => {
   if (!finduserById) {
     throw new ApiError(httpStatus.NOT_FOUND, "User Not Found");
   }
-  let findPayment = await Payment.findOne({email:finduserById.email, status:"Paid"})
-  
-  if(findPayment){
+  let findPayment = await Payment.findOne({
+    email: finduserById.email,
+    status: "Paid",
+  });
+
+  if (findPayment) {
     const timestamp1 = finduserById.createdAt;
     const timestamp2 = moment().toISOString();
     const date1 = moment(timestamp1);
@@ -76,10 +79,10 @@ const payments = async (req) => {
     const hours = Math.floor(difference.asHours());
     const minutes = Math.floor(difference.asMinutes());
 
-    console.log(minutes,"popo");
-    if(hours < 3){
-      throw new ApiError(httpStatus.BAD_REQUEST, "You Can Topup After 3 hours")
-    }else{
+    console.log(minutes, "popo");
+    if (hours < 3) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "You Can Topup After 3 hours");
+    } else {
       const email = finduserById.email;
       const { amount } = req.body;
       const {
@@ -92,9 +95,7 @@ const payments = async (req) => {
         maxRequestHour,
         maxRequestLimit,
       } = oxaPay;
-    
-    
-    
+
       function getCircularReplacer() {
         const seen = new WeakSet();
         return (key, value) => {
@@ -119,14 +120,14 @@ const payments = async (req) => {
             callbackUrl: `${backendUrl}/v1/user/payment/notification?apiKey=${apiKey}`,
             returnUrl: `https://user-react.globalfc.app/app/DashBoard`,
             // returnUrl: `http://localhost:5000/app/DashBoard`,
-    
+
             orderId: orderId,
             email,
             userId,
           })
         );
         return PaymentOrder.data;
-    
+
         // console.log("Response Data:", JSON.stringify(PaymentOrder.data, null, 2));
       } catch (error) {
         console.error("Error occurred:", error.message);
@@ -136,64 +137,61 @@ const payments = async (req) => {
         );
       }
     }
-  }else{
-  const email = finduserById.email;
-  const { amount } = req.body;
-  const {
-    apiKey,
-    backendUrl,
-    frontendUrl,
-    oxapayLifetime,
-    oxapayBaseUrl,
-    oxapayMerchantKey,
-    maxRequestHour,
-    maxRequestLimit,
-  } = oxaPay;
+  } else {
+    const email = finduserById.email;
+    const { amount } = req.body;
+    const {
+      apiKey,
+      backendUrl,
+      frontendUrl,
+      oxapayLifetime,
+      oxapayBaseUrl,
+      oxapayMerchantKey,
+      maxRequestHour,
+      maxRequestLimit,
+    } = oxaPay;
 
-
-
-  function getCircularReplacer() {
-    const seen = new WeakSet();
-    return (key, value) => {
-      if (typeof value === "object" && value !== null) {
-        if (seen.has(value)) {
-          return;
+    function getCircularReplacer() {
+      const seen = new WeakSet();
+      return (key, value) => {
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) {
+            return;
+          }
+          seen.add(value);
         }
-        seen.add(value);
-      }
-      return value;
-    };
+        return value;
+      };
+    }
+    try {
+      let orderId = v4();
+      const PaymentOrder = await Axios.post(
+        `${oxapayBaseUrl}/merchants/request`,
+        QS.stringify({
+          merchant: oxapayMerchantKey,
+          amount,
+          currency: "USD",
+          lifeTime: oxapayLifetime,
+          callbackUrl: `${backendUrl}/v1/user/payment/notification?apiKey=${apiKey}`,
+          returnUrl: `https://user-react.globalfc.app/app/DashBoard`,
+          // returnUrl: `http://localhost:5000/app/DashBoard`,
+
+          orderId: orderId,
+          email,
+          userId,
+        })
+      );
+      return PaymentOrder.data;
+
+      // console.log("Response Data:", JSON.stringify(PaymentOrder.data, null, 2));
+    } catch (error) {
+      console.error("Error occurred:", error.message);
+      console.error(
+        "Error response:",
+        JSON.stringify(error.response, getCircularReplacer(), 2)
+      );
+    }
   }
-  try {
-    let orderId = v4();
-    const PaymentOrder = await Axios.post(
-      `${oxapayBaseUrl}/merchants/request`,
-      QS.stringify({
-        merchant: oxapayMerchantKey,
-        amount,
-        currency: "USD",
-        lifeTime: oxapayLifetime,
-        callbackUrl: `${backendUrl}/v1/user/payment/notification?apiKey=${apiKey}`,
-        returnUrl: `https://user-react.globalfc.app/app/DashBoard`,
-        // returnUrl: `http://localhost:5000/app/DashBoard`,
-
-        orderId: orderId,
-        email,
-        userId,
-      })
-    );
-    return PaymentOrder.data;
-
-    // console.log("Response Data:", JSON.stringify(PaymentOrder.data, null, 2));
-  } catch (error) {
-    console.error("Error occurred:", error.message);
-    console.error(
-      "Error response:",
-      JSON.stringify(error.response, getCircularReplacer(), 2)
-    );
-  }
-}
-
 };
 
 const getPaymentNotification = async (req) => {
@@ -255,14 +253,27 @@ const getPaymentNotification = async (req) => {
       const date2 = moment(timestamp2);
       const difference = moment.duration(date2.diff(date1));
       const hours = Math.floor(difference.asHours());
-      console.log(hours,"LLLLLLLLLLLLLLLLLLLLLLLLLLl");
       if (hours < 3) {
-        await Payment.create(req.body);
+       res = await Payment.create(req.body);
+        if (res.status == "Paid") {
+          await User.findOneAndUpdate(
+            { email: req.body.email },
+            { $inc: { myWallet: res.amount } },
+            { new: true }
+          );
+        }
       } else {
         console.log("After 3 hours");
       }
     } else {
       res = await Payment.create(req.body);
+      if (res.status == "Paid") {
+        await User.findOneAndUpdate(
+          { email: req.body.email },
+          { $inc: { myWallet: res.amount } },
+          { new: true }
+        );
+      }
     }
   }
   return findByOrderId;
