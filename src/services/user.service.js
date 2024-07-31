@@ -198,7 +198,7 @@ const getPaymentNotification = async (req) => {
   let res;
 
   let findByOrderId = await Payment.findOne({
-    orderId: req.body.orderId,
+    email:req.body.email,
     status: { $ne: "Paid" },
   });
 
