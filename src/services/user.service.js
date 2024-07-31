@@ -2,7 +2,10 @@ const ApiError = require("../utils/ApiError");
 const httpStatus = require("http-status");
 const User = require("../models/users.model");
 const { OTPGenerator } = require("../utils/OTP");
-const { generateRefId, NumberToLetters } = require("../utils/referalIdGenerator");
+const {
+  generateRefId,
+  NumberToLetters,
+} = require("../utils/referalIdGenerator");
 const Bcrypt = require("bcryptjs");
 const { oxaPay } = require("../config/config");
 const QS = require("qs");
@@ -123,12 +126,7 @@ const payments = async (req) => {
         orderId: orderId,
         email,
         userId,
-      }),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
+      })
     );
     return PaymentOrder.data;
 
@@ -144,11 +142,43 @@ const payments = async (req) => {
 
 const getPaymentNotification = async (req) => {
   let res;
+  // let findByOrderId = await Payment.findOne({
+  //   orderId: req.body.orderId,
+  //   status: { $ne: "Paid" },
+  // });
+  // console.log(req.body.email);
+  // if (findByOrderId) {
+  //   res = await Payment.findByIdAndUpdate(
+  //     { _id: findByOrderId._id },
+  //     req.body,
+  //     {
+  //       new: true,
+  //     }
+  //   );
+  //   if (res.status == "Paid") {
+  //     let updated = await User.findOneAndUpdate(
+  //       { email: req.body.email },
+  //       { $inc: { myWallet: res.amount } },
+  //       { new: true }
+  //     );
+  //   }
+  // } else {
+  //   res = await Payment.create(req.body);
+  //   if (res.status == "Paid") {
+  //     let updated = await User.findOneAndUpdate(
+  //       { email: req.body.email },
+  //       { $inc: { myWallet: res.amount } },
+  //       { new: true }
+  //     );
+  //   }
+  //   return findByOrderId;
+  // }
+
   let findByOrderId = await Payment.findOne({
     orderId: req.body.orderId,
     status: { $ne: "Paid" },
   });
-  console.log(req.body.email);
+
   if (findByOrderId) {
     res = await Payment.findByIdAndUpdate(
       { _id: findByOrderId._id },
@@ -157,24 +187,28 @@ const getPaymentNotification = async (req) => {
         new: true,
       }
     );
-    if (res.status == "Paid") {
-      let updated = await User.findOneAndUpdate(
-        { email: req.body.email },
-        { $inc: { myWallet: res.amount } },
-        { new: true }
-      );
-    }
   } else {
-    res = await Payment.create(req.body);
-    if (res.status == "Paid") {
-      let updated = await User.findOneAndUpdate(
-        { email: req.body.email },
-        { $inc: { myWallet: res.amount } },
-        { new: true }
-      );
+    let findExistPayment = await Payment.findOne({
+      email: req.body.email,
+      status: "Paid",
+    });
+    if (findExistPayment) {
+      const timestamp1 = findExistPayment.createdAt;
+      const timestamp2 = moment().toISOString();
+      const date1 = moment(timestamp1);
+      const date2 = moment(timestamp2);
+      const difference = moment.duration(date2.diff(date1));
+      const hours = Math.floor(difference.asHours());
+      if (hours >= 3) {
+        await Payment.create(req.body);
+      } else {
+        console.log("After 3 hours");
+      }
+    } else {
+      res = await Payment.create(req.body);
     }
-    return findByOrderId;
   }
+  return findByOrderId;
 };
 
 const getPaymentHistoryByUser = async (req) => {
@@ -329,24 +363,24 @@ const getFcSlots = async (req) => {
       },
     },
     {
-      $lookup:{
-        from:'slots',
-        localField:'slotId',
-        foreignField:'_id',
-        as:'slot'
-      }
+      $lookup: {
+        from: "slots",
+        localField: "slotId",
+        foreignField: "_id",
+        as: "slot",
+      },
     },
     {
-      $unwind:{
-        preserveNullAndEmptyArrays:true,
-        path:'$slot'
-      }
+      $unwind: {
+        preserveNullAndEmptyArrays: true,
+        path: "$slot",
+      },
     },
     {
       $project: {
         _id: 1,
         userId: 1,
-        slotId: {$ifNull:['$slot.slotId',null]},
+        slotId: { $ifNull: ["$slot.slotId", null] },
         no_ofSlot: 1,
         totalYield: 1,
         crowdStock: 1,
@@ -686,7 +720,7 @@ const getUserDetails_Dashboard = async (req) => {
         internalIn: { $ifNull: ["$internalIn.amount", 0] },
         refIncomeToday: { $ifNull: ["$refIncome.amount", 0] },
         refIncomeAll: { $ifNull: ["$refIncomeAll.amount", 0] },
-        withdraw:{$ifNull:['$withdraw.total',0]}
+        withdraw: { $ifNull: ["$withdraw.total", 0] },
       },
     },
   ]);
@@ -733,7 +767,11 @@ const activateClub = async (req) => {
     );
     let slotCount = await Slot.find().countDocuments();
     let slotId_id = NumberToLetters(slotCount);
-    let createSlot = await Slot.create({ userId: userId, status: "Activated",slotId:`${findUserbyId.refId}-${slotId_id}` });
+    let createSlot = await Slot.create({
+      userId: userId,
+      status: "Activated",
+      slotId: `${findUserbyId.refId}-${slotId_id}`,
+    });
     let createYield = await Yield.create({
       userId: userId,
       status: "Activated",
@@ -777,7 +815,11 @@ const activateClub = async (req) => {
     );
     let slotCount = await Slot.find().countDocuments();
     let slotId_id = NumberToLetters(slotCount);
-    let createSlot = await Slot.create({ userId: userId, status: "Activated",slotId:`${findUserbyId.refId}-${slotId_id}` });
+    let createSlot = await Slot.create({
+      userId: userId,
+      status: "Activated",
+      slotId: `${findUserbyId.refId}-${slotId_id}`,
+    });
     let createYield = await Yield.create({
       userId: userId,
       status: "Activated",
