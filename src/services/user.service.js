@@ -252,6 +252,7 @@ const getPaymentNotification = async (req) => {
       const date2 = moment(timestamp2);
       const difference = moment.duration(date2.diff(date1));
       const hours = Math.floor(difference.asHours());
+      console.log(hours,"LLLLLLLLLLLLLLLLLLLLLLLLLLl");
       if (hours < 3) {
         await Payment.create(req.body);
       } else {
