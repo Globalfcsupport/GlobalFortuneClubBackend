@@ -198,44 +198,21 @@ const getPaymentNotification = async (req) => {
   let res;
 
   let findByOrderId = await Payment.findOne({
-    email:req.body.email,
-    status: { $ne: "Paid" },
+    email: req.body.email,
+    status: "Paid",
   });
 
   if (findByOrderId) {
-    res = await Payment.findByIdAndUpdate(
-      { _id: findByOrderId._id },
-      req.body,
-      {
-        new: true,
-      }
-    );
-  } else {
-    let findExistPayment = await Payment.findOne({
-      email: req.body.email,
-      status: "Paid",
-    });
-    if (findExistPayment) {
-      const timestamp1 = findExistPayment.createdAt;
-      const timestamp2 = moment().toISOString();
-      const date1 = moment(timestamp1);
-      const date2 = moment(timestamp2);
-      const difference = moment.duration(date2.diff(date1));
-      const hours = Math.floor(difference.asHours());
-      if (hours < 3) {
-       res = await Payment.create(req.body);
-        if (res.status == "Paid") {
-          await User.findOneAndUpdate(
-            { email: req.body.email },
-            { $inc: { myWallet: res.amount } },
-            { new: true }
-          );
-        }
-      } else {
-        console.log("After 3 hours");
-      }
+    const timestamp1 = findByOrderId.createdAt;
+    const timestamp2 = moment().toISOString();
+    const date1 = moment(timestamp1);
+    const date2 = moment(timestamp2);
+    const difference = moment.duration(date2.diff(date1));
+    const hours = Math.floor(difference.asHours());
+    if (hours < 3) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "After 3 Hours");
     } else {
-      if(req.body.status == 'Paid'){
+      if (req.body.status == "Paid") {
         res = await Payment.create(req.body);
         await User.findOneAndUpdate(
           { email: req.body.email },
@@ -244,8 +221,18 @@ const getPaymentNotification = async (req) => {
         );
       }
     }
+    return res;
+  } else {
+    if (req.body.status == "Paid") {
+      res = await Payment.create(req.body);
+      await User.findOneAndUpdate(
+        { email: req.body.email },
+        { $inc: { myWallet: res.amount } },
+        { new: true }
+      );
+    }
+    return res
   }
-  return findByOrderId;
 };
 
 const getPaymentHistoryByUser = async (req) => {
