@@ -267,6 +267,9 @@ const getPaymentNotification = async (req) => {
       }
     } else {
       res = await Payment.create(req.body);
+      if (res.status == "Paid") {
+        console.log(res,"YES");
+      }
     }
   }
   return findByOrderId;
