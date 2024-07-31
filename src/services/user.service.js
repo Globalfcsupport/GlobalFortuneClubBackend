@@ -65,7 +65,7 @@ const payments = async (req) => {
   if (!finduserById) {
     throw new ApiError(httpStatus.NOT_FOUND, "User Not Found");
   }
-  let findPayment = await Payment.findOne({email:finduserById})
+  let findPayment = await Payment.findOne({email:finduserById.email, status:"Paid"})
   
   if(findPayment){
     const timestamp1 = finduserById.createdAt;
