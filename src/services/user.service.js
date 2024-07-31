@@ -74,7 +74,9 @@ const payments = async (req) => {
     const date2 = moment(timestamp2);
     const difference = moment.duration(date2.diff(date1));
     const hours = Math.floor(difference.asHours());
-    console.log(hours);
+    const minutes = Math.floor(difference.asMinutes());
+
+    console.log(minutes,"popo");
     if(hours < 3){
       throw new ApiError(httpStatus.BAD_REQUEST, "You Can Topup After 3 hours")
     }else{
