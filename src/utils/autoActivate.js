@@ -18,11 +18,6 @@ const AutoActivateSlot = async () => {
   if (startedUsers.length > 0) {
     for (let index = 0; index < startedUsers.length; index++) {
       const element = startedUsers[index];
-      let findActivated = await Slot.findOne({
-        userId: element._id,
-        status: "Activated",
-      });
-      if (!findActivated) {
         let LatestActivatedSlotByUSer = await Slot.findOne({
           userId: element._id,
         }).sort({ createdAt: -1 });
@@ -197,6 +192,7 @@ const AutoActivateSlot = async () => {
                 status: "Activated",
               });
               let splitYields = Yields / totalActivatedSlotCount;
+              let slotCount = await Slot.find({ userId: element._id}).countDocuments()
               let slotId_id = NumberToLetters(slotCount)
               let slotcreate = await Slot.create({
                 status: "Activated",
@@ -320,9 +316,6 @@ const AutoActivateSlot = async () => {
             }
           }
         }
-      } else {
-        console.log("Already Slot In Activated");
-      }
     }
   }
 };

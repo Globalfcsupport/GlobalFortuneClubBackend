@@ -231,7 +231,7 @@ const getPaymentNotification = async (req) => {
         { new: true }
       );
     }
-    return res
+    return res;
   }
 };
 
