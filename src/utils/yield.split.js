@@ -130,11 +130,11 @@ const SpliteYield = async (userId) => {
             { $inc: { adminWallet: set.platFormFee } },
             { new: true }
           );
-          await User.findOneAndUpdate(
-            { _id: element._id },
-            { $inc: { myWallet: -set.platFormFee } },
-            { new: true }
-          );
+          // await User.findOneAndUpdate(
+          //   { _id: element._id },
+          //   { $inc: { myWallet: -set.platFormFee } },
+          //   { new: true }
+          // );
           await PaymentDetail.create({
             userId: element.userId,
             status: "Platformfee",
