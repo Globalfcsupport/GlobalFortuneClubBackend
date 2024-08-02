@@ -124,7 +124,7 @@ socket.on("sendMoney", async (data) => {
 
 cron.schedule('* * * * *', () => {
   console.log('running a task every minute')
-  // AutoActivateSlot()
+  AutoActivateSlot()
 });
 
 app.use("/v1", routes);
