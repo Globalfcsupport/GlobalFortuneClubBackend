@@ -61,7 +61,7 @@ const SpliteYield = async (userId) => {
           { new: true }
         );
         await PaymentDetail.create({
-          userId: element.userId,
+          userId: element._id,
           status: "Platformfee",
           amountStatus: "slotCompleted",
           amount: val,
@@ -136,7 +136,7 @@ const SpliteYield = async (userId) => {
           //   { new: true }
           // );
           await PaymentDetail.create({
-            userId: element.userId,
+            userId: element._id,
             status: "Platformfee",
             amountStatus: "slotCompleted",
             amount: set.platFormFee,
