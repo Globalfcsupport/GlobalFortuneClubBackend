@@ -253,6 +253,34 @@ const AdminWalletSchema = new mongoose.Schema(
 
 const AdminWallet = mongoose.model("adminwallet", AdminWalletSchema);
 
+const PaymentDetailsSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: String,
+      default: v4,
+    },
+    userId: {
+      type: String,
+    },
+    amount: {
+      type: Number,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+    amountStatus: {
+      type: String,
+    },
+    status: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
+
+const PaymentDetail = mongoose.model("Paymentdetails", PaymentDetailsSchema);
+
 module.exports = {
   Payment,
   Slot,
@@ -260,4 +288,5 @@ module.exports = {
   AdminYield,
   Yeild_history,
   AdminWallet,
+  PaymentDetail,
 };

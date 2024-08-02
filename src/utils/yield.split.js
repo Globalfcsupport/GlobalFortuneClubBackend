@@ -5,6 +5,7 @@ const {
   AdminYield,
   Yeild_history,
   AdminWallet,
+  PaymentDetail,
 } = require("../models/payment.history");
 const ApiError = require("./ApiError");
 const { Setting } = require("../models/admin.model");
@@ -43,17 +44,28 @@ const SpliteYield = async (userId) => {
         console.log(element);
         let amount = 200;
         let percentage = set.platFormFee;
-        let val = amount * (percentage / 100);
+        let val = set.platFormFee;
         IOIOIOIO = await AdminWallet.create({
           slotId: element.slotId,
           adminWallet: val,
-          Type:"Completed"
+          Type: "Completed",
         });
         await User.findOneAndUpdate(
           { role: "admin" },
           { $inc: { adminWallet: val } },
           { new: true }
         );
+        await User.findOneAndUpdate(
+          { _id: element._id },
+          { $inc: { myWallet: -val } },
+          { new: true }
+        );
+        await PaymentDetail.create({
+          userId: element.userId,
+          status: "Platformfee",
+          amountStatus: "slotCompleted",
+          amount: val,
+        });
         await Slot.findByIdAndUpdate(
           element.slotId,
           { status: "Completed" },
@@ -103,9 +115,32 @@ const SpliteYield = async (userId) => {
         let findUserById = await User.findById(element.userId);
         let set = await Setting.findOne().sort({ createdAt: -1 });
         if (findUserById) {
-          findUserById = await User.findByIdAndUpdate({_id:findUserById._id}, {$inc:{wallet:-set.platFormFee}},{new:true})
-          await AdminWallet.create({Type:"Completed"}, {slotId:element.slotId, adminWallet:set.platFormFee}, {new:true})
-          await User.findOneAndUpdate({role:"admin"}, { $inc:{adminWallet:set.platFormFee} }, {new:true})
+          findUserById = await User.findByIdAndUpdate(
+            { _id: findUserById._id },
+            { $inc: { wallet: -set.platFormFee } },
+            { new: true }
+          );
+          await AdminWallet.create(
+            { Type: "Completed" },
+            { slotId: element.slotId, adminWallet: set.platFormFee },
+            { new: true }
+          );
+          await User.findOneAndUpdate(
+            { role: "admin" },
+            { $inc: { adminWallet: set.platFormFee } },
+            { new: true }
+          );
+          await User.findOneAndUpdate(
+            { _id: element._id },
+            { $inc: { myWallet: -set.platFormFee } },
+            { new: true }
+          );
+          await PaymentDetail.create({
+            userId: element.userId,
+            status: "Platformfee",
+            amountStatus: "slotCompleted",
+            amount: set.platFormFee,
+          });
         }
       }
     }
