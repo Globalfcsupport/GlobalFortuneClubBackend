@@ -20,6 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 const path = require('path');
 const User = require("./models/users.model");
+const { CronJobs } = require("./utils/cronJobs");
 
 app.use(morgan.successHandler);
 app.use(morgan.errorHandler);
@@ -122,10 +123,15 @@ socket.on("sendMoney", async (data) => {
 
 });
 
-cron.schedule('* * * * *', () => {
-  console.log('running a task every minute')
-  AutoActivateSlot()
-});
+// cron.schedule('* * * * *', () => {
+//   console.log('running a task every minute')
+//   AutoActivateSlot()
+// });
+
+app.get('/auto/activate', async (req,res)=>{
+  let data = await CronJobs()
+  res.send(data)
+})
 
 app.use("/v1", routes);
 app.use("/v1/auth", authLimiter);
