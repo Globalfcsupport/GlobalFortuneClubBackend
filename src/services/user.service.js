@@ -870,7 +870,7 @@ const activateClub = async (req) => {
       userId: findReference._id,
       amount: PlatformFee,
     });
-    // SpliteYield(userId);
+    SpliteYield(userId);
     return createYield;
   }
 };
