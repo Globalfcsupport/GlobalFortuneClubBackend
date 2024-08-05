@@ -860,7 +860,7 @@ const activateClub = async (req) => {
       { _id: findReference._id },
       { $inc: { adminWallet: PlatformFee } },
       { new: true }
-    );
+    );    
     await User.findOneAndUpdate(
       { role: "admin" },
       { $inc: { adminWallet: -1 } },
