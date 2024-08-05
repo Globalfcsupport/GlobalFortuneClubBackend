@@ -808,7 +808,7 @@ const activateClub = async (req) => {
     let findSetting = await Setting.findOne().sort({ createdAt: -1 });
     let refCOmmision = findSetting.ReferalCommisionSlot;
     let findReference = await User.findOne({ refId: findUserbyId.uplineId });
-    let PlatformFee = (100 * refCOmmision) / 100;
+    let PlatformFee = refCOmmision
     findReference = await User.findOneAndUpdate(
       { _id: findReference._id },
       { $inc: { adminWallet: PlatformFee } },
@@ -855,7 +855,7 @@ const activateClub = async (req) => {
     let findReference = await User.findOne({ refId: findUserbyId.uplineId });
     let findSetting = await Setting.findOne().sort({ createdAt: -1 });
     let refCOmmision = findSetting.ReferalCommisionSlot;
-    let PlatformFee = (100 * refCOmmision) / 100;
+    let PlatformFee = refCOmmision
     findReference = await User.findOneAndUpdate(
       { _id: findReference._id },
       { $inc: { adminWallet: PlatformFee } },
@@ -870,7 +870,7 @@ const activateClub = async (req) => {
       userId: findReference._id,
       amount: PlatformFee,
     });
-    SpliteYield(userId);
+    // SpliteYield(userId);
     return createYield;
   }
 };

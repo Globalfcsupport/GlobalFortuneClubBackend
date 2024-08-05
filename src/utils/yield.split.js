@@ -22,6 +22,7 @@ const SpliteYield = async (userId) => {
     status: "Activated",
     userId: { $ne: userId },
   });
+  
   if (findExistingActivatedSlotsCount > 0 && findLOY) {
     let splitAmount = (findLOY.Yield + 100) / findExistingActivatedSlotsCount;
     findLOY.Yield = 0;
