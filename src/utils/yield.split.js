@@ -22,13 +22,12 @@ const SpliteYield = async (userId) => {
     status: "Activated",
     userId: { $ne: userId },
   });
-  
+
   if (findExistingActivatedSlotsCount > 0 && findLOY) {
     let splitAmount = (findLOY.Yield + 100) / findExistingActivatedSlotsCount;
     findLOY.Yield = 0;
     await findLOY.save();
     const splitTwo = splitAmount / 2;
-
     for (let element of findExistingActivatedSlots) {
       let YIELD = element.currentYield + splitAmount;
       if (YIELD > 200) {
@@ -61,6 +60,8 @@ const SpliteYield = async (userId) => {
           { $inc: { myWallet: -val } },
           { new: true }
         );
+        console.log(val, " 63 IF REDUCE VAL");
+
         await PaymentDetail.create({
           userId: element._id,
           status: "Platformfee",
@@ -121,6 +122,7 @@ const SpliteYield = async (userId) => {
             { $inc: { wallet: -set.platFormFee } },
             { new: true }
           );
+          console.log(set.platFormFee, "125 REDUCE VAL");
           await AdminWallet.create(
             { Type: "Completed" },
             { slotId: element.slotId, adminWallet: set.platFormFee },
