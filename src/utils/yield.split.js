@@ -63,7 +63,7 @@ const SpliteYield = async (userId) => {
         console.log(val, " 63 IF REDUCE VAL");
 
         await PaymentDetail.create({
-          userId: element._id,
+          userId: element.userId,
           status: "Platformfee",
           amountStatus: "slotCompleted",
           amount: val,
@@ -108,6 +108,7 @@ const SpliteYield = async (userId) => {
 
       if (element.currentYield >= element.totalYield) {
         element.status = "Completed";
+        console.log("Completed", 12);
         await element.save();
         await Slot.findByIdAndUpdate(
           element.slotId,
@@ -116,13 +117,14 @@ const SpliteYield = async (userId) => {
         );
         let findUserById = await User.findById(element.userId);
         let set = await Setting.findOne().sort({ createdAt: -1 });
+        console.log(findUserById, "Before");
         if (findUserById) {
           findUserById = await User.findByIdAndUpdate(
             { _id: findUserById._id },
-            { $inc: { wallet: -set.platFormFee } },
+            { $inc: { myWallet: -set.platFormFee } },
             { new: true }
           );
-          console.log(set.platFormFee, "125 REDUCE VAL");
+          console.log(findUserById, set.platFormFee);
           await AdminWallet.create(
             { Type: "Completed" },
             { slotId: element.slotId, adminWallet: set.platFormFee },
@@ -139,7 +141,7 @@ const SpliteYield = async (userId) => {
           //   { new: true }
           // );
           await PaymentDetail.create({
-            userId: element._id,
+            userId: element.userId,
             status: "Platformfee",
             amountStatus: "slotCompleted",
             amount: set.platFormFee,

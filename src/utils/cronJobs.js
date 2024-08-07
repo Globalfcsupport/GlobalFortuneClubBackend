@@ -60,12 +60,12 @@ const CronJobs = async () => {
         
           let exitsSlotCount = await Slot.find({userId:element._id}).countDocuments()
           let idGen = await NumberToLetters(exitsSlotCount)
-          let createSlot = await Slot.create({userId:element._id, status:'Activated',slotId:idGen})
+          let createSlot = await Slot.create({userId:element._id, status:'Activated',slotId:`${element._id}-idGen`})
           let yieldCreation = await Yield.create({userId:element._id, slotId:createSlot._id, totalYield:200, currentYield:0, crowdStock:0,status:'Activated', wallet:0})
      
-          let findRef = await User.findOneAndUpdate({refId:element.uplineId},{$inc:{myWallet:1}},{new:true})
-          let RefIncome = await RefferalIncome.create({amount:1, userId:findRef._id})
-          let reduceAdminWallet = await User.findOneAndUpdate({role:'admin'}, {$inc:{myWallet:-1}},{new:true})
+          let findRef = await User.findOneAndUpdate({refId:element.uplineId},{$inc:{myWallet:setting.ReferalCommisionSlot}},{new:true})
+          let RefIncome = await RefferalIncome.create({amount:1, userId:element._id, receiverId:findRef._id})
+          let reduceAdminWallet = await User.findOneAndUpdate({role:'admin'}, {$inc:{myWallet:- setting.ReferalCommisionSlot}},{new:true})
           // Split Dollers
           console.log(getActivatedSlotCount);
           

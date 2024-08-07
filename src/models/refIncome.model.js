@@ -17,6 +17,9 @@ const refferalIncomeSchema = new mongoose.Schema(
     userId: {
       type: String,
     },
+    receiverId:{
+      type:String
+    },
   },
   { timestamps: true }
 );

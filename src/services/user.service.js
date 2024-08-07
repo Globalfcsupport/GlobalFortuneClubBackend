@@ -703,7 +703,7 @@ const getUserDetails_Dashboard = async (req) => {
       $lookup: {
         from: "refferalincomes",
         localField: "_id",
-        foreignField: "userId",
+        foreignField: "receiverId",
         pipeline: [
           {
             $group: {
@@ -820,7 +820,8 @@ const activateClub = async (req) => {
       { new: true }
     );
     await RefferalIncome.create({
-      userId: findReference._id,
+      receiverId: findReference._id,
+      userId:userId,
       amount: PlatformFee,
     });
     return createYield;
@@ -867,7 +868,8 @@ const activateClub = async (req) => {
       { new: true }
     );
     await RefferalIncome.create({
-      userId: findReference._id,
+      receiverId: findReference._id,
+      userId:userId,
       amount: PlatformFee,
     });
     SpliteYield(userId);
@@ -1133,7 +1135,7 @@ const getuserWallet = async (req) => {
                 $literal: false,
               },
               type: {
-                $literal: "Crypto - Completed",
+                $literal: "FC - Completed",
               },
               date: {
                 $dateToString: {
@@ -1154,7 +1156,7 @@ const getuserWallet = async (req) => {
       $lookup: {
         from: "refferalincomes",
         localField: "_id",
-        foreignField: "userId",
+        foreignField: "receiverId",
         pipeline: [
           {
             $project: {
@@ -1163,10 +1165,10 @@ const getuserWallet = async (req) => {
               active: 1,
               active: 1,
               received: {
-                $literal: false,
+                $literal: true,
               },
               type: {
-                $literal: "Crypto - Ref",
+                $literal: "Referral",
               },
               date: {
                 $dateToString: {
@@ -1191,7 +1193,8 @@ const getuserWallet = async (req) => {
             "$SendInternal",
             "$cryptoIn",
             "$cryptoOut",
-            "$Completed"
+            "$Completed",
+            "$Reference"
           ],
         },
       },
