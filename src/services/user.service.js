@@ -811,12 +811,12 @@ const activateClub = async (req) => {
     let PlatformFee = refCOmmision
     findReference = await User.findOneAndUpdate(
       { _id: findReference._id },
-      { $inc: { adminWallet: PlatformFee } },
+      { $inc: { myWallet: PlatformFee } },
       { new: true }
     );
     await User.findOneAndUpdate(
       { role: "admin" },
-      { $inc: { adminWallet: -1 } },
+      { $inc: { myWallet: -1 } },
       { new: true }
     );
     await RefferalIncome.create({
@@ -858,12 +858,12 @@ const activateClub = async (req) => {
     let PlatformFee = refCOmmision
     findReference = await User.findOneAndUpdate(
       { _id: findReference._id },
-      { $inc: { adminWallet: PlatformFee } },
+      { $inc: { myWallet: PlatformFee } },
       { new: true }
     );    
     await User.findOneAndUpdate(
       { role: "admin" },
-      { $inc: { adminWallet: -1 } },
+      { $inc: { myWallet: -1 } },
       { new: true }
     );
     await RefferalIncome.create({
