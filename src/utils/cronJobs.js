@@ -58,7 +58,7 @@ const CronJobs = async () => {
         }
       
         let exitsSlotCount = await Slot.find({userId:element._id}).countDocuments()
-        let idGen = NumberToLetters(exitsSlotCount)
+        let idGen = await NumberToLetters(exitsSlotCount)
         let createSlot = await Slot.create({userId:element._id, status:'Activated',slotId:idGen})
         let yieldCreation = await Yield.create({userId:element._id, slotId:createSlot._id, totalYield:200, currentYield:0, crowdStock:0,status:'Activated', wallet:0})
    

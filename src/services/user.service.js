@@ -789,8 +789,8 @@ const activateClub = async (req) => {
       { started: true, $inc: { myWallet: -100 } },
       { new: true }
     );
-    let slotCount = await Slot.find().countDocuments();
-    let slotId_id = NumberToLetters(slotCount);
+    let slotCount = await Slot.find({userId: userId,}).countDocuments();
+    let slotId_id = await NumberToLetters(slotCount);
     let createSlot = await Slot.create({
       userId: userId,
       status: "Activated",
@@ -837,8 +837,8 @@ const activateClub = async (req) => {
       { started: true, $inc: { myWallet: -100 } },
       { new: true }
     );
-    let slotCount = await Slot.find().countDocuments();
-    let slotId_id = NumberToLetters(slotCount);
+    let slotCount = await Slot.find({userId:userId}).countDocuments();
+    let slotId_id = await NumberToLetters(slotCount);
     let createSlot = await Slot.create({
       userId: userId,
       status: "Activated",
