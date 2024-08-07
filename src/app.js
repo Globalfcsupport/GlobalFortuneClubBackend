@@ -123,10 +123,11 @@ socket.on("sendMoney", async (data) => {
 
 });
 
-// cron.schedule('* * * * *', () => {
-//   console.log('running a task every minute')
-//   AutoActivateSlot()
-// });
+cron.schedule('* * * * *', () => {
+  console.log('running a task every minute')
+  // AutoActivateSlot()
+  CronJobs()
+});
 
 app.get('/auto/activate', async (req,res)=>{
   let data = await CronJobs()

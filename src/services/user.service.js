@@ -1116,6 +1116,73 @@ const getuserWallet = async (req) => {
         as: "cryptoOut",
       },
     },
+
+    {
+      $lookup: {
+        from: "paymentdetails",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              amount: 1,
+              active: 1,
+              active: 1,
+              received: {
+                $literal: false,
+              },
+              type: {
+                $literal: "Crypto - Completed",
+              },
+              date: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$createdAt",
+                },
+              },
+            },
+          },
+          {
+            $match: dateMatch,
+          },
+        ],
+        as: "Completed",
+      },
+    },
+    {
+      $lookup: {
+        from: "refferalincomes",
+        localField: "_id",
+        foreignField: "userId",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              amount: 1,
+              active: 1,
+              active: 1,
+              received: {
+                $literal: false,
+              },
+              type: {
+                $literal: "Crypto - Ref",
+              },
+              date: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$createdAt",
+                },
+              },
+            },
+          },
+          {
+            $match: dateMatch,
+          },
+        ],
+        as: "Reference",
+      },
+    },
     {
       $set: {
         allTransactions: {
@@ -1124,6 +1191,7 @@ const getuserWallet = async (req) => {
             "$SendInternal",
             "$cryptoIn",
             "$cryptoOut",
+            "$Completed"
           ],
         },
       },
