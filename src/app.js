@@ -123,10 +123,10 @@ socket.on("sendMoney", async (data) => {
 
 });
 
-cron.schedule('* * * * *', () => {
-  console.log('running a task every minute')
-  // AutoActivateSlot()
-  CronJobs()
+cron.schedule('*/5 * * * *', () => {
+  console.log('running a task every 5 minutes');
+  // AutoActivateSlot();
+  CronJobs();
 });
 
 app.get('/auto/activate', async (req,res)=>{
