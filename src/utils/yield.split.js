@@ -12,8 +12,6 @@ const { Setting } = require("../models/admin.model");
 const User = require("../models/users.model");
 
 const SpliteYield = async (userId) => {
-  let set = await Setting.findOne().sort({ createdAt: -1 });
-
   // find Existing Active Slots Yields
   let findExistingActivatedSlots = await Yield.find({
     status: "Activated",
@@ -30,7 +28,6 @@ const SpliteYield = async (userId) => {
     findLOY.Yield = 0;
     await findLOY.save();
     const splitTwo = splitAmount / 2;
-    const splitWallet = splitAmount - set.platFormFee
     for (let element of findExistingActivatedSlots) {
       let YIELD = element.currentYield + splitAmount;
       if (YIELD > 200) {
@@ -39,6 +36,7 @@ const SpliteYield = async (userId) => {
         findLOY.Yield = rem.toFixed(4);
         console.log(findLOY);
         await findLOY.save();
+        let set = await Setting.findOne().sort({ createdAt: -1 });
         element.crowdStock = staticAmount.toFixed(4);
         element.currentYield = staticAmount.toFixed(4);
         element.status = "Completed";
@@ -135,15 +133,11 @@ const SpliteYield = async (userId) => {
             { $inc: { adminWallet: set.platFormFee } },
             { new: true }
           );
-          await User.findByIdAndUpdate(
-            { _id: element.userId },
-            {
-              $inc: {
-                myWallet: parseFloat(splitWallet.toFixed(4)),
-                crowdStock: parseFloat(splitWallet.toFixed(4)),
-              },
-            }
-          );
+          // await User.findOneAndUpdate(
+          //   { _id: element._id },
+          //   { $inc: { myWallet: -set.platFormFee } },
+          //   { new: true }
+          // );
           await PaymentDetail.create({
             userId: element._id,
             status: "Platformfee",
