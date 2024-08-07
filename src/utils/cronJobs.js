@@ -95,7 +95,7 @@ const CronJobs = async () => {
             }
              if(findYeld.currentYield > 200) {
               console.log("Completed From Else", element.userName);
-              let complete =  await Yield.findByIdAndUpdate({_id:activatedSlots._id}, {status:'Completed'}, {new:true})
+              let complete =  await Yield.findByIdAndUpdate({_id:activatedSlots._id}, {status:'Completed',currentYield:200, wallet:100, crowdStock:100 }, {new:true})
               await Slot.findByIdAndUpdate({_id:complete.slotId}, { status:'Completed' }, {new:true})
               await PaymentDetail.create({userId:complete.userId, amount:setting.platFormFee, amountStatus:'slotCompleted', status:'Platformfee'})
               await User.findOneAndUpdate({role:'admin'}, { $inc:{adminWallet:setting.platFormFee} }, {new:true})
