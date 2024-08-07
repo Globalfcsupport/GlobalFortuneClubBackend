@@ -111,58 +111,6 @@ const CronJobs = async () => {
       }else{
         console.log(`${element.userName} Condition Unstatisfied`);
       }
-      // else{
-      //   let RemAmount = 100 - crowdstock
-      //   let amt = wallet - RemAmount
-      //   if(amt>rservemywallet){
-      //     let exitsSlotCount = await Slot.find({userId:element._id}).countDocuments()
-      //   let idGen = NumberToLetters(exitsSlotCount)
-      //   let createSlot = await Slot.create({userId:element._id, status:'Activated',slotId:idGen})
-      //   let walletUpdate = await User.findByIdAndUpdate({_id:element._id}, {$inc:{crowdStock:-crowdstock, myWallet:-RemAmount}}, {new:true})
-      //   let yieldCreation = await Yield.create({userId:element._id, slotId:createSlot._id, totalYield:200, currentYield:0, crowdStock:0,status:'Activated', wallet:0})
-      //   let getActivatedSlotCount = await Yield.find({status:'Activated', _id:{$ne:yieldCreation._id}}).countDocuments();
-      //   let getActivatedSlot = await Yield.find({status:'Activated', _id:{$ne:yieldCreation._id}})
-      //   let findRef = await User.findOneAndUpdate({refId:element.uplineId},{$inc:{myWallet:1}},{new:true})
-      //   let RefIncome = await RefferalIncome.create({amount:1, userId:findRef._id})
-      //   let reduceAdminWallet = await User.findOneAndUpdate({role:'admin'}, {$inc:{adminWallet:-1}},{new:true})
-      //   // Split Dollers
-      //   let splitYield = 100+leftoveryield / getActivatedSlotCount
-      //     console.log(splitYield, "From BOTH");
-      //   if(LOY){
-      //     await AdminYield.findByIdAndUpdate({_id:LOY._id}, {Yield:0}, {new:true})
-      //   }
-
-      //   for (let splitInd = 0; splitInd < getActivatedSlot.length; splitInd++) {
-      //     const activatedSlots = getActivatedSlot[splitInd];
-      //     let splitTwo = splitYield / 2;
-      //     let findYeld = await Yield.findByIdAndUpdate({_id:activatedSlots._id}, {$inc:{currentYield:splitYield, crowdStock:splitTwo, wallet:splitTwo}}, {new:true})
-      //     await Yeild_history.create({userId:activatedSlots.userId, slotId:activatedSlots.slotId, currentYield:splitYield,totalYield:200});
-      //     let updateWalletAmount = await User.findByIdAndUpdate({_id:activatedSlots.userId}, {$inc:{myWallet:splitTwo, crowdStock:splitTwo}});
-      //       if (findYeld.currentYield ==200){
-      //         let complete =  await Yield.findByIdAndUpdate({_id:activatedSlots._id}, {status:'Completed', currentYield:200, crowdStock:100, wallet:100}, {new:true})
-      //         await Slot.findByIdAndUpdate({_id:complete.slotId}, { status:'Completed' }, {new:true})
-      //         await PaymentDetail.create({userId:complete.userId, amount:setting.platFormFee, amountStatus:'slotCompleted', status:'Platformfee'})
-      //         await User.findOneAndUpdate({role:'admin'}, { $inc:{adminWallet:setting.platFormFee} }, {new:true})
-      //         await User.findByIdAndUpdate({_id:complete.userId}, {$inc:{adminWallet: -setting.platFormFee}}, {new:true})
-      //       }else if(findYeld.currentYield >200){
-      //         let complete =  await Yield.findByIdAndUpdate({_id:activatedSlots._id}, {status:'Completed'}, {new:true})
-      //         await Slot.findByIdAndUpdate({_id:complete.slotId}, { status:'Completed' }, {new:true})
-      //         await PaymentDetail.create({userId:complete.userId, amount:setting.platFormFee, amountStatus:'slotCompleted', status:'Platformfee'})
-      //         await User.findOneAndUpdate({role:'admin'}, { $inc:{adminWallet:setting.platFormFee} }, {new:true})
-      //         await User.findByIdAndUpdate({_id:complete.userId}, {$inc:{adminWallet: -setting.platFormFee}}, {new:true})
-      //        let remYield =   findYeld.currentYield - 200
-      //         if(LOY){
-      //           await AdminYield.findByIdAndUpdate({_id:LOY._id}, {Yield:remYield}, {new:true})
-      //         }else{
-      //           await AdminYield.create({Yield:remYield})
-      //         }
-      //       }
-          
-      //   }
-      //   }else{
-      //     console.log(`${element.userName} Wallet Amount Not Enough To Buy New Slot`);
-      //   }
-      // }
     }
   }
 
